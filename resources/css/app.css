@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter/Inter-VariableFont_slnt,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('/fonts/jetbrains-mono/JetBrainsMono-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --color-primary: #003087;
+    --color-primary-dark: #001F5C;
+    --color-primary-light: #1A4BA8;
+    --color-accent: #00BFFF;
+    --color-accent-light: #E0F7FF;
+
+    --color-bg: #F4F6F9;
+    --color-surface: #FFFFFF;
+    --color-border: #DDE3EC;
+    --color-text-primary: #1A1D23;
+    --color-text-secondary: #6B7280;
+    --color-text-muted: #9CA3AF;
+
+    --color-success: #00C48C;
+    --color-success-bg: #E6FAF5;
+    --color-warning: #FFAA00;
+    --color-warning-bg: #FFF8E1;
+    --color-danger: #FF4C4C;
+    --color-danger-bg: #FFF0F0;
+    --color-neutral: #8B95A5;
+    --color-neutral-bg: #F1F3F7;
+    --color-info: #3B82F6;
+
+    --font-sans: 'Inter', 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+}
+
+[x-cloak] {
+    display: none;
+}
