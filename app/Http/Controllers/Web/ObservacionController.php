@@ -23,16 +23,8 @@ class ObservacionController extends Controller
         return view('jurados.observaciones', compact('expedientes', 'jurados'));
     }
 
-    public function registrar(Request $request)
+    public function registrar(\App\Http\Requests\StoreObservacionRequest $request)
     {
-        $request->validate([
-            'expediente_id' => 'required|integer|exists:expediente,id',
-            'jurado_id' => 'required|integer|exists:persona,id',
-            'ronda' => 'required|integer|min:1',
-            'descripcion' => 'required|string',
-            'tipo_veredicto' => 'required|string|in:aprobado,observado',
-        ]);
-
         try {
             $this->observacionService->registrarObservacion($request->all());
             return back()->with('success', 'Observación registrada correctamente.');

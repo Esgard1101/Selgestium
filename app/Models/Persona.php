@@ -11,7 +11,7 @@ class Persona extends Model
 
     protected $table = 'persona';
 
-    protected $fillable = ['nombre', 'apellido', 'dni', 'email', 'sucursal_id'];
+    protected $fillable = ['nombre', 'apellido', 'dni', 'email', 'sucursal_id', 'creditos'];
 
     public function sucursal()
     {

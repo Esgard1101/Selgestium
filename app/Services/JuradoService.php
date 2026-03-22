@@ -31,6 +31,14 @@ class JuradoService
                 throw new Exception("El expediente no existe.");
             }
 
+            // REGLA ACADÉMICA: Créditos mínimos
+            $estudiante = DB::table('persona')->where('id', $expediente->estudiante_id)->first();
+            $minCredits = config('app.thesis_credits_minimum', 160);
+
+            if ($estudiante && $estudiante->creditos < $minCredits) {
+                throw new Exception("El estudiante no cumple con el mínimo de créditos requerido ({$minCredits}). Actual: {$estudiante->creditos}");
+            }
+
             foreach ($juradoIds as $juradoId) {
                 // Verificar que el jurado (persona) existe
                 $persona = DB::table('persona')->where('id', $juradoId)->first();

@@ -123,4 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'thesis_credits_minimum' => env('THESIS_CREDITS_MINIMUM', 160),
+    'university_name' => env('APP_UNIVERSITY_NAME', 'UNPRG'),
+    'faculty_name' => env('APP_FACULTY_NAME', 'FACHSE'),
+
 ];
