@@ -4,23 +4,34 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Services\ObservacionService;
+use App\Services\PlazoService;
 use Illuminate\Http\Request;
 use Exception;
 
 class ObservacionController extends Controller
 {
     protected $observacionService;
+    protected $plazoService;
 
-    public function __construct(ObservacionService $observacionService)
+    public function __construct(ObservacionService $observacionService, PlazoService $plazoService)
     {
         $this->observacionService = $observacionService;
+        $this->plazoService = $plazoService;
     }
 
     public function showRegistrar()
     {
         $expedientes = \App\Models\Expediente::all();
         $jurados = \App\Models\Persona::all();
-        return view('jurados.observaciones', compact('expedientes', 'jurados'));
+
+        $vencidos = [];
+        foreach ($expedientes as $exp) {
+            if ($this->plazoService->verificarVencimiento($exp->id)) {
+                $vencidos[] = $exp->id;
+            }
+        }
+
+        return view('jurados.observaciones', compact('expedientes', 'jurados', 'vencidos'));
     }
 
     public function registrar(\App\Http\Requests\StoreObservacionRequest $request)

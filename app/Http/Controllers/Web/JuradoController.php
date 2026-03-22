@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Services\JuradoService;
 use App\Services\ResolucionService;
+use App\Services\PlazoService;
 use App\Http\Requests\StoreJuradoRequest;
 use Exception;
 
@@ -12,11 +13,16 @@ class JuradoController extends Controller
 {
     protected $juradoService;
     protected $resolucionService;
+    protected $plazoService;
 
-    public function __construct(JuradoService $juradoService, ResolucionService $resolucionService)
-    {
+    public function __construct(
+        JuradoService $juradoService, 
+        ResolucionService $resolucionService,
+        PlazoService $plazoService
+    ) {
         $this->juradoService = $juradoService;
         $this->resolucionService = $resolucionService;
+        $this->plazoService = $plazoService;
     }
 
     /**
@@ -53,7 +59,11 @@ class JuradoController extends Controller
                 $request->jurados
             );
 
-            return back()->with('success', 'Jurados asignados correctamente.');
+            // Iniciar plazo de 15 días (Fase 2: Revisión de Jurados)
+            $this->plazoService->asignarPlazo($request->expediente_id, 2);
+
+            return redirect()->route('expediente.resolucion', $request->expediente_id)
+                ->with('success', 'Jurados asignados y plazo de 15 días iniciado.');
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
