@@ -18,4 +18,7 @@ Route::middleware([
 
     Route::get('/expediente/asignar-jurados', [JuradoController::class, 'showAsignar'])->name('expediente.asignar-jurados.view');
     Route::post('/expediente/asignar-jurados', [JuradoController::class, 'asignar'])->name('expediente.asignar-jurados');
+
+    Route::get('/expediente/observaciones', [\App\Http\Controllers\Web\ObservacionController::class, 'showRegistrar'])->name('expediente.observaciones.view');
+    Route::post('/expediente/observaciones', [\App\Http\Controllers\Web\ObservacionController::class, 'registrar'])->name('expediente.observaciones.registrar');
 });
