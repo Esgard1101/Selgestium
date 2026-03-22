@@ -69,6 +69,32 @@ class SustentacionService
     }
 
     /**
+     * Registra el acta final y cierra el expediente (Feature 8).
+     */
+    public function cerrarExpediente(array $data): void
+    {
+        $expedienteId = $data['expediente_id'];
+
+        DB::transaction(function () use ($data, $expedienteId) {
+            // Guardar Acta usando DataBaseTrait
+            $this->insertSingleDB('det_expedienteacta', 0, [
+                'expediente_id' => $expedienteId,
+                'numero_acta' => $data['numero_acta'],
+                'fecha_sustentacion' => $data['fecha_sustentacion'],
+                'resultado' => $data['resultado'],
+                'observaciones' => $data['observaciones'] ?? '',
+            ]);
+
+            // Cerrar Expediente
+            DB::table('expediente')->where('id', $expedienteId)->update([
+                'estado' => 'cerrado',
+                'fase_actual' => 11, // Fase Final: Sustentación/Cierre
+                'updated_at' => now(),
+            ]);
+        });
+    }
+
+    /**
      * Obtener sustentaciones para el dashboard.
      */
     public function obtenerProgramadas(): \Illuminate\Support\Collection

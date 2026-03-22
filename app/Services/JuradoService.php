@@ -31,6 +31,10 @@ class JuradoService
                 throw new Exception("El expediente no existe.");
             }
 
+            if ($expediente->estado === 'cerrado') {
+                throw new Exception("El expediente está CERRADO y no permite más asignaciones.");
+            }
+
             // REGLA ACADÉMICA: Créditos mínimos
             $estudiante = DB::table('persona')->where('id', $expediente->estudiante_id)->first();
             $minCredits = config('app.thesis_credits_minimum', 160);

@@ -19,6 +19,12 @@ class ObservacionService
     public function registrarObservacion(array $data): void
     {
         $expedienteId = $data['expediente_id'];
+
+        $expediente = DB::table('expediente')->where('id', $expedienteId)->first();
+        if ($expediente && $expediente->estado === 'cerrado') {
+            throw new Exception("El expediente está CERRADO y no permite registrar nuevas observaciones.");
+        }
+
         $juradoId = $data['jurado_id'];
         $ronda = $data['ronda'] ?? 1;
 

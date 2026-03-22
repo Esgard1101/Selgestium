@@ -38,4 +38,28 @@ class SustentacionController extends Controller
             return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
     }
+
+    public function showCerrar($expedienteId)
+    {
+        $expediente = \App\Models\Expediente::findOrFail($expedienteId);
+        return view('sustentacion.cerrar', compact('expediente'));
+    }
+
+    public function cerrar(Request $request)
+    {
+        $request->validate([
+            'expediente_id' => 'required|exists:expediente,id',
+            'numero_acta' => 'required|string|unique:det_expedienteacta,numero_acta',
+            'fecha_sustentacion' => 'required|date',
+            'resultado' => 'required|string',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        try {
+            $this->sustentacionService->cerrarExpediente($request->all());
+            return redirect()->route('dashboard')->with('success', 'Expediente cerrado y acta registrada correctamente.');
+        } catch (Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()])->withInput();
+        }
+    }
 }
