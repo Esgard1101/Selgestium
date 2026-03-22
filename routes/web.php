@@ -13,7 +13,8 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $sustentaciones = app(\App\Services\SustentacionService::class)->obtenerProgramadas();
+        return view('dashboard', compact('sustentaciones'));
     })->name('dashboard');
 
     Route::get('/expediente/asignar-jurados', [JuradoController::class, 'showAsignar'])->name('expediente.asignar-jurados.view');
@@ -22,4 +23,8 @@ Route::middleware([
 
     Route::get('/expediente/observaciones', [\App\Http\Controllers\Web\ObservacionController::class, 'showRegistrar'])->name('expediente.observaciones.view');
     Route::post('/expediente/observaciones', [\App\Http\Controllers\Web\ObservacionController::class, 'registrar'])->name('expediente.observaciones.registrar');
+
+    // Sustentacion
+    Route::get('/sustentacion/programar/{expedienteId}', [\App\Http\Controllers\Web\SustentacionController::class, 'showProgramar'])->name('sustentacion.programar.show');
+    Route::post('/sustentacion/programar', [\App\Http\Controllers\Web\SustentacionController::class, 'programar'])->name('sustentacion.programar.store');
 });

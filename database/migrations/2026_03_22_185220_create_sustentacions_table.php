@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('det_expedienteplazo', function (Blueprint $table) {
+        Schema::create('sustentacion', function (Blueprint $table) {
             $table->id();
             $table->foreignId('expediente_id')->constrained('expediente');
-            $table->foreignId('fase_id')->constrained('fase');
-            $table->dateTime('fecha_inicio');
-            $table->dateTime('fecha_vencimiento');
-            $table->string('estado')->default('activo'); // activo, cumplido, vencido
+            $table->date('fecha');
+            $table->time('hora');
+            $table->string('lugar');
+            $table->string('estado')->default('programado');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('det_expedienteplazo');
+        Schema::dropIfExists('sustentacions');
     }
 };
