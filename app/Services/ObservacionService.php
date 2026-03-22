@@ -72,14 +72,14 @@ class ObservacionService
         $aprobados = $observaciones->where('tipo_veredicto', 'aprobado')->count();
 
         if ($aprobados === 3) {
-            // Aprobación consolidada -> Avanzar fase (Fases del PDF: 5 Jurado, 6 Revisión, 7 Aprobación...)
+            // Aprobación consolidada -> Avanzar a Fase 7 (Aprobacion del Proyecto)
             DB::table('expediente')->where('id', $expedienteId)->update([
-                'fase_actual' => $expediente->fase_actual + 1,
+                'fase_actual' => 7,
                 'estado' => 'aprobado',
                 'updated_at' => now(),
             ]);
         } else {
-            // Si hay alguna observación -> En subsanación
+            // Si hay al menos un "observado" entre los 3 votos -> En subsanación
             DB::table('expediente')->where('id', $expedienteId)->update([
                 'estado' => 'en_subsanacion',
                 'updated_at' => now(),
