@@ -44,9 +44,34 @@ class PlazoService
                 ->where('id', $plazo->id)
                 ->update(['estado' => 'vencido']);
             
+            $this->registrarAlerta($plazo);
+            
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Registra una alerta formal y simula notificación al comité (Art. 123-d).
+     */
+    protected function registrarAlerta(object $plazo): void
+    {
+        $existe = DB::table('det_expedientealerta')
+            ->where('plazo_id', $plazo->id)
+            ->exists();
+
+        if (!$existe) {
+            $this->insertSingleDB('det_expedientealerta', 0, [
+                'expediente_id' => $plazo->expediente_id,
+                'plazo_id' => $plazo->id,
+                'tipo' => 'vencimiento_15_dias',
+                'mensaje' => "El expediente con ID {$plazo->expediente_id} ha superado el plazo de 15 días en la fase de revisión (Art. 123-d).",
+                'enviado_comite' => true,
+                'fecha_alerta' => now(),
+            ]);
+
+            \Illuminate\Support\Facades\Log::info("Notificación encolada al Comité de Ética (Art. 123-d) para expediente {$plazo->expediente_id}");
+        }
     }
 }
