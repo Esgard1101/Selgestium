@@ -14,20 +14,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Limpiamos la tabla para evitar duplicados si corres el seeder varias veces
-        User::truncate();
-
-        // Crear el Usuario Administrador Líder
-        User::create([
-            'name' => 'Admin FACHSE',
-            'email' => 'admin@selgestiun.edu.pe',
-            'password' => Hash::make('Admin1234!'), // Contraseña segura y hasheada
-            'email_verified_at' => now(),
-            // 'sucursal_id' => 1 // Esto lo activaremos cuando liguemos la tabla sucursal
+        $this->call([
+            RolSeeder::class,
+            FaseSeeder::class,
+            UniversidadDemoSeeder::class,
         ]);
-
-        // Aquí luego agregaremos:
-        // $this->call(RolSeeder::class);
-        // $this->call(ParametroSeeder::class);
     }
 }
