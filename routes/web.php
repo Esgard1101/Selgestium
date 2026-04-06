@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\JuradoController;
+use App\Http\Controllers\Web\PurController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,7 +28,13 @@ Route::middleware([
     // Sustentacion
     Route::get('/sustentacion/programar/{expedienteId}', [\App\Http\Controllers\Web\SustentacionController::class, 'showProgramar'])->name('sustentacion.programar.show');
     Route::post('/sustentacion/programar', [\App\Http\Controllers\Web\SustentacionController::class, 'programar'])->name('sustentacion.programar.store');
-    
+
     Route::get('/sustentacion/cerrar/{expedienteId}', [\App\Http\Controllers\Web\SustentacionController::class, 'showCerrar'])->name('sustentacion.cerrar.show');
     Route::post('/sustentacion/cerrar', [\App\Http\Controllers\Web\SustentacionController::class, 'cerrar'])->name('sustentacion.cerrar.store');
+});
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/pur/radicar', [PurController::class, 'create'])->name('pur.create');
+    Route::post('/pur/radicar', [PurController::class, 'store'])->name('pur.store');
 });
