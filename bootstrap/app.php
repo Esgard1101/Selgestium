@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'verificar.sesion'  => \App\Http\Middleware\VerificarSesion::class,
+            'verificar.permiso' => \App\Http\Middleware\VerificarPermiso::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
