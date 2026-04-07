@@ -186,6 +186,19 @@ class SeguridadAccesoTest extends TestCase
 
     // ─── Test 7: Seeders funcionales ─────────────────────────────────────────
 
+    public function test_logout_redirige_al_login(): void
+    {
+        $this->post('/login', [
+            'email'    => 'admin@test.com',
+            'password' => 'password',
+        ]);
+
+        $response = $this->post('/logout');
+
+        $response->assertRedirect('/login');
+        $this->assertGuest();
+    }
+
     public function test_seeders_funcionales(): void
     {
         // Ya se llamaron RolSeeder y FaseSeeder en setUp()
