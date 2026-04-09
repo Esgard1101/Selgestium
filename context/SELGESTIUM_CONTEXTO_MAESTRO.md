@@ -822,6 +822,36 @@ Endpoint esperado
   { "id": 2, "label": "María López Torres", "sublabel": "Estudiante · 87654321" }
 ]
 
+# 🛠️ Registro de Fixes y Reglas de Optimización — Módulos FAI y Sustentación
+> **Contexto:** Este documento estandariza las soluciones aplicadas tras los errores de generación de rutas en el sidebar (`UrlGenerationException`) y errores de columnas SQL inexistentes en las consultas `QueryBuilder`.
+
+## 1. Contexto de Uso y Nuevas Vistas (Flujo de Navegación)
+Para evitar crashes en el menú lateral (Sidebar), **ninguna ruta registrada en `opcionmenu` puede requerir parámetros**. Se ha establecido el siguiente patrón de navegación para módulos que operan sobre un expediente específico:
+
+1. **El menú lateral apunta a una ruta `index` (Sin parámetros).**
+   - *Ejemplo:* `route('sustentacion.programar.index')`
+2. **El controlador renderiza una vista "Selectora".**
+   - Muestra una tabla/lista con los expedientes disponibles (filtrados por la fase correspondiente).
+   - *Vistas creadas:* `sustentacion/seleccionar_programar.blade.php`, `sustentacion/seleccionar_cerrar.blade.php`.
+3. **El usuario hace clic en el botón de acción de la tabla.**
+   - Esto navega hacia la ruta `show` o `edit` pasando el ID del expediente.
+   - *Ejemplo:* `href="{{ route('sustentacion.programar.show', $exp->id) }}"`
+
+## 2. Manual de Optimización para Agentes (Reglas Obligatorias)
+
+### Regla 1: Rutas de Menú Estrictamente Sin Parámetros
+Al registrar opciones en `OpcionmenuSeeder` o `config/rutasopcion.php`, el `ruta_nombre` **jamás** debe apuntar a una ruta definida como `/ruta/{parametro}` en `web.php`. Si el módulo requiere un ID, el agente debe construir primero la vista `index` selectora mencionada arriba.
+
+### Regla 2: Verificación Exacta de Nombres de Columnas en Base de Datos
+Al hacer `DB::table(...)` con `JOIN` o funciones como `CONCAT`, verificar contra las migraciones reales. 
+- ❌ **Incorrecto (asumido):** `p.nombres`, `p.apellido_paterno`
+- ✅ **Correcto (migración real):** `p.nombre`, `p.apellido`
+
+### Regla 3: Catch Defensivo en Consultas a Base de Datos (Controladores)
+Los métodos del controlador que inyectan colecciones a una vista de listado deben anticipar fallos SQL (ej. columnas faltantes o tablas no migradas en entornos nuevos).
+- **Acción requerida:** Envolver el query principal en un `try/catch (\Throwable $e)`.
+- **En el `catch`:** Hacer logging del error (opcional pero recomendado) y retornar una colección vacía (`collect()`) a la vista. 
+- **En la vista Blade:** Garantizar el uso de `@if ($coleccion->isEmpty())` para renderizar un mensaje de "No hay registros disponibles", evitando un HTTP 500.
 
 
 

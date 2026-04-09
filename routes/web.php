@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\PurController;
 use App\Http\Controllers\Web\ObservacionController;
 use App\Http\Controllers\Web\SustentacionController;
 use App\Http\Controllers\Web\BitacoraAccesoController;
+use App\Http\Controllers\Web\FaiController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -71,9 +72,11 @@ Route::middleware([
     Route::post('/expediente/observaciones', [ObservacionController::class, 'registrar'])->name('expediente.observaciones.registrar');
 
     // ─── Sustentación ─────────────────────────────────────────────────────
+    Route::get('/sustentacion/programar',              [SustentacionController::class, 'indexProgramar'])->name('sustentacion.programar.index');
     Route::get('/sustentacion/programar/{expedienteId}', [SustentacionController::class, 'showProgramar'])->name('sustentacion.programar.show');
     Route::post('/sustentacion/programar',               [SustentacionController::class, 'programar'])->name('sustentacion.programar.store');
-    Route::get('/sustentacion/cerrar/{expedienteId}',    [SustentacionController::class, 'showCerrar'])->name('sustentacion.cerrar.show');
+    Route::get('/sustentacion/cerrar',               [SustentacionController::class, 'indexCerrar'])->name('sustentacion.cerrar.index');
+    Route::get('/sustentacion/cerrar/{expedienteId}', [SustentacionController::class, 'showCerrar'])->name('sustentacion.cerrar.show');
     Route::post('/sustentacion/cerrar',                  [SustentacionController::class, 'cerrar'])->name('sustentacion.cerrar.store');
 
     // ─── PUR: Radicación de proyectos ─────────────────────────────────────
@@ -82,4 +85,9 @@ Route::middleware([
 
     // ─── Seguridad: Bitácora de acceso ────────────────────────────────────
     Route::get('/seguridad/bitacora-acceso', [BitacoraAccesoController::class, 'index'])->name('bitacora.acceso.index');
+
+    // ─── FAI: Verificaciones administrativas (rol: ui) ────────────────────
+    // RF02.1 — Créditos académicos (manual en Sprint 1; API en Sprint 2)
+    Route::get('/fai/creditos',  [FaiController::class, 'showVerificacionCreditos'])->name('fai.creditos.show');
+    Route::post('/fai/creditos', [FaiController::class, 'storeVerificacionCreditos'])->name('fai.creditos.store');
 });

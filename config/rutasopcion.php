@@ -27,9 +27,11 @@ return [
     'expediente.observaciones.view'   => 4,
     'expediente.observaciones.registrar' => 4,
 
+    'sustentacion.programar.index'    => 5,
     'sustentacion.programar.show'     => 5,
     'sustentacion.programar.store'    => 5,
 
+    'sustentacion.cerrar.index'       => 6,
     'sustentacion.cerrar.show'        => 6,
     'sustentacion.cerrar.store'       => 6,
 

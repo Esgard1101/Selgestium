@@ -53,7 +53,7 @@ class OpcionmenuSeeder extends Seeder
             // ID 5 — UI / CC / Decanato / Admin: programar sustentacion
             [
                 'id'          => 5,
-                'ruta_nombre' => 'sustentacion.programar.show',
+                'ruta_nombre' => 'sustentacion.programar.index',
                 'descripcion' => 'Programar Sustentacion',
                 'icono'       => 'fas fa-calendar-check',
                 'grupo'       => 'Sustentacion',
@@ -63,7 +63,7 @@ class OpcionmenuSeeder extends Seeder
             // ID 6 — UI / CC / Decanato / Admin: cerrar sustentacion
             [
                 'id'          => 6,
-                'ruta_nombre' => 'sustentacion.cerrar.show',
+                'ruta_nombre' => 'sustentacion.cerrar.index',
                 'descripcion' => 'Cerrar Sustentacion',
                 'icono'       => 'fas fa-flag-checkered',
                 'grupo'       => 'Sustentacion',

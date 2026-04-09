@@ -22,6 +22,9 @@ class DatabaseSeeder extends Seeder
 
             // Cruces rol → opcion (requiere roles y opciones ya insertados)
             RolOpcionmenuSeeder::class,
+
+            // FAI: config demo (requiere sucursal y apifuente ya insertados)
+            FaiConfigDemoSeeder::class,
         ]);
     }
 }
