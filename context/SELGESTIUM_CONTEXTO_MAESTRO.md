@@ -795,6 +795,35 @@ ACCIÓN: [qué debe hacer el desarrollador]
 | Delicia | Nombre del proyecto previo del equipo, del cual se hereda el paradigma de BD |
 
 ---
+##autocomplete
+
+Uso
+
+<x-autocomplete
+    name="asesor_id"
+    label="Asesor"
+    endpoint="{{ route('ajax.personas.search') }}"
+    placeholder="Buscar por nombre o DNI..."
+    :value="old('asesor_id', '')"
+    :value-label="old('asesor_label', '')"
+    :required="true"
+/>
+Comportamiento
+Tipeo → debounce 280ms → GET endpoint?q=texto → dropdown con label + sublabel
+Click o Enter en ítem → chip azul con ✕
+✕ en chip → limpia y devuelve el foco al input
+↑↓ navegan el dropdown, Esc lo cierra
+Compatible con pistola lectora (Enter confirma el único resultado si hay uno solo)
+Input hidden recibe el id; el chip muestra el label
+Endpoint esperado
+
+[
+  { "id": 1, "label": "Juan Pérez García",  "sublabel": "Docente · 12345678" },
+  { "id": 2, "label": "María López Torres", "sublabel": "Estudiante · 87654321" }
+]
+
+
+
 
 *SELGESTIUM · Contexto Maestro v1.0.0 · 2026-I*  
 *Este archivo es la fuente de verdad para todos los agentes del proyecto.*

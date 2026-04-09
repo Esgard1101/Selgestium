@@ -11,6 +11,38 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// ─── AJAX: endpoints de búsqueda (auth requerida, sin verificar.permiso) ─────
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verificar.sesion'])
+    ->prefix('ajax')
+    ->name('ajax.')
+    ->group(function () {
+
+        // Búsqueda de personas (docentes + estudiantes) — para x-autocomplete
+        Route::get('/personas/search', function (\Illuminate\Http\Request $request) {
+            $q = trim($request->get('q', ''));
+            if (strlen($q) < 2) return response()->json([]);
+
+            $resultados = \Illuminate\Support\Facades\DB::table('persona')
+                ->select('id', 'nombres', 'apellido_paterno', 'apellido_materno',
+                         'numero_documento', 'tipo_persona')
+                ->where(function ($query) use ($q) {
+                    $query->whereRaw("CONCAT(nombres, ' ', apellido_paterno, ' ', apellido_materno) ILIKE ?", ["%{$q}%"])
+                          ->orWhere('numero_documento', 'ILIKE', "%{$q}%");
+                })
+                ->whereNull('deleted_at')
+                ->where('activo', true)
+                ->limit(10)
+                ->get()
+                ->map(fn($p) => [
+                    'id'       => $p->id,
+                    'label'    => "{$p->nombres} {$p->apellido_paterno} {$p->apellido_materno}",
+                    'sublabel' => ucfirst($p->tipo_persona) . ' · ' . $p->numero_documento,
+                ]);
+
+            return response()->json($resultados);
+        })->name('personas.search');
+    });
+
 // ─── Rutas del ERP (requieren auth + sesión enriquecida + permiso) ────────────
 // Cada ruta devuelve HTML Blade completo — nunca JSON de UI.
 Route::middleware([
