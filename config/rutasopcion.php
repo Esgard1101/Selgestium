@@ -1,19 +1,37 @@
 <?php
 
 /**
- * Mapeo de nombre de ruta → ID de opción de menú.
+ * Mapeo nombre-de-ruta → opcionmenu_id.
  *
- * Cuando se implemente la tabla opcionmenu, agregar aquí:
- *   'expediente.asignar-jurados'   => config('opcionesmenu.asignar_jurados'),
- *   'expediente.observaciones.view'=> config('opcionesmenu.observaciones'),
+ * VerificarPermiso lee este archivo para decidir si la ruta
+ * requiere un permiso específico. Las rutas NO listadas aquí
+ * pasan sin verificación de menú (dashboard, rutas internas, etc.).
  *
- * Mientras la tabla no exista, dejar vacío para que VerificarPermiso no bloquee nada.
+ * IDs sincronizados con OpcionmenuSeeder:
+ *   1 = Dashboard (acceso universal, no necesita mapearse aquí)
+ *   2 = Radicar Expediente
+ *   3 = Asignar Jurados
+ *   4 = Observaciones
+ *   5 = Programar Sustentacion
+ *   6 = Cerrar Sustentacion
+ *   7 = Historial de Acceso
  */
 return [
-    // Ejemplos (descomentar cuando exista config/opcionesmenu.php con los IDs):
-    // 'expediente.asignar-jurados.view' => 1,
-    // 'expediente.observaciones.view'   => 2,
-    // 'sustentacion.programar.show'     => 3,
-    // 'sustentacion.cerrar.show'        => 4,
-    // 'pur.create'                      => 5,
+    'pur.create'                      => 2,
+    'pur.store'                       => 2,
+
+    'expediente.asignar-jurados.view' => 3,
+    'expediente.asignar-jurados'      => 3,
+    'expediente.resolucion'           => 3,
+
+    'expediente.observaciones.view'   => 4,
+    'expediente.observaciones.registrar' => 4,
+
+    'sustentacion.programar.show'     => 5,
+    'sustentacion.programar.store'    => 5,
+
+    'sustentacion.cerrar.show'        => 6,
+    'sustentacion.cerrar.store'       => 6,
+
+    'bitacora.acceso.index'           => 7,
 ];

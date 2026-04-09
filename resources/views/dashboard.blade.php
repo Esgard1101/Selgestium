@@ -1,96 +1,138 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
 
-    <div class="space-y-6">
-        @if(session('success'))
-            <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 shadow-sm">
-                {{ session('success') }}
-            </div>
-        @endif
+<div class="space-y-6">
 
-        <section class="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200/70">
-            <div class="flex items-start gap-4">
-                <img
-                    src="{{ asset(config('university.logo_url')) }}"
-                    alt="{{ config('app.name', 'SELGESTIUM') }}"
-                    class="h-20 w-auto shrink-0"
-                >
-
-                <div class="space-y-3">
-                    <div>
-                        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-primary/70">{{ config('university.faculty_name') }}</p>
-                        <h3 class="text-3xl font-bold text-slate-800">{{ __('Panel principal SELGESTIUM') }}</h3>
-                    </div>
-
-                    <p class="max-w-3xl text-base leading-7 text-slate-600">
-                        {{ __('Bienvenido al entorno interno del sistema. Desde aqui se gestionan expedientes, fases, sustentaciones y los flujos operativos del modulo PUR.') }}
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <section class="grid gap-6 lg:grid-cols-3">
-            <article class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-200/60 lg:col-span-2">
-                <div class="mb-4 flex items-center justify-between gap-4">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Agenda</p>
-                        <h3 class="text-2xl font-bold text-slate-800">{{ __('Proximas Sustentaciones (Art. 123)') }}</h3>
-                    </div>
-                    <span class="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-primary">
-                        {{ __('Calendario academico') }}
+    {{-- Bienvenida --}}
+    <section class="rounded-2xl p-6 shadow-sm"
+             style="background-color: var(--color-surface); border: 1px solid var(--color-border);">
+        <div class="flex items-start gap-5">
+            <img src="{{ asset(config('university.logo_url')) }}"
+                 alt="{{ config('app.name') }}"
+                 class="h-16 w-auto flex-shrink-0"
+                 onerror="this.style.display='none'">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-widest mb-1"
+                   style="color: var(--color-primary);">
+                    {{ config('university.faculty_name') }} · {{ config('university.university_name') }}
+                </p>
+                <h1 class="text-2xl font-bold mb-1" style="color: var(--color-text-primary);">
+                    Bienvenido, {{ session('nombres', Auth::user()->name ?? 'Usuario') }}
+                </h1>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                          style="background-color: var(--color-accent-light); color: var(--color-primary);">
+                        <i class="fas fa-id-badge"></i>
+                        {{ session('perfil', 'Usuario') }}
+                    </span>
+                    <span class="text-xs" style="color: var(--color-text-muted);">
+                        Periodo académico {{ config('university.academic_period') }}
                     </span>
                 </div>
+            </div>
+        </div>
+    </section>
 
-                @if(isset($sustentaciones) && $sustentaciones->count() > 0)
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-slate-200 text-sm">
-                            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                <tr>
-                                    <th class="px-4 py-3">{{ __('Fecha') }}</th>
-                                    <th class="px-4 py-3">{{ __('Hora') }}</th>
-                                    <th class="px-4 py-3">{{ __('Expediente') }}</th>
-                                    <th class="px-4 py-3">{{ __('Lugar') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 bg-white text-slate-700">
-                                @foreach($sustentaciones as $sus)
-                                    <tr>
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ $sus->fecha }}</td>
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ $sus->hora }}</td>
-                                        <td class="px-4 py-3">{{ $sus->numero_radicacion }} - {{ $sus->titulo }}</td>
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ $sus->lugar }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-slate-500">
-                        {{ __('No hay sustentaciones programadas.') }}
-                    </div>
-                @endif
-            </article>
+    {{-- Grid: sustentaciones + estado del sistema --}}
+    <div class="grid gap-6 lg:grid-cols-3">
 
-            <aside class="rounded-3xl bg-white p-6 shadow-lg shadow-slate-200/60">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('Acceso rapido') }}</p>
-                <h3 class="mt-2 text-xl font-bold text-slate-800">{{ __('Estado del entorno') }}</h3>
-
-                <div class="mt-6 space-y-4 text-sm text-slate-600">
-                    <div class="rounded-2xl bg-slate-50 px-4 py-4">
-                        <p class="font-semibold text-slate-800">{{ __('Autenticacion hibrida activa') }}</p>
-                        <p class="mt-1">{{ __('Jetstream y Fortify quedan reservados para login, logout y recuperacion de credenciales.') }}</p>
-                    </div>
-
-                    <div class="rounded-2xl bg-slate-50 px-4 py-4">
-                        <p class="font-semibold text-slate-800">{{ __('ERP en Blade') }}</p>
-                        <p class="mt-1">{{ __('Los modulos internos deben renderizar HTML completo y usar AJAX solo en endpoints explicitos del negocio.') }}</p>
-                    </div>
+        {{-- Próximas sustentaciones --}}
+        <section class="lg:col-span-2 rounded-2xl p-6 shadow-sm"
+                 style="background-color: var(--color-surface); border: 1px solid var(--color-border);">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-widest mb-0.5"
+                       style="color: var(--color-text-muted);">Agenda</p>
+                    <h2 class="text-lg font-bold" style="color: var(--color-text-primary);">
+                        Próximas Sustentaciones
+                    </h2>
                 </div>
-            </aside>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                      style="background-color: var(--color-accent-light); color: var(--color-primary);">
+                    Calendario
+                </span>
+            </div>
+
+            @if(isset($sustentaciones) && $sustentaciones->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--color-border);">
+                                <th class="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider"
+                                    style="color: var(--color-text-muted);">Fecha</th>
+                                <th class="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider"
+                                    style="color: var(--color-text-muted);">Hora</th>
+                                <th class="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider"
+                                    style="color: var(--color-text-muted);">Expediente</th>
+                                <th class="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider"
+                                    style="color: var(--color-text-muted);">Lugar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($sustentaciones as $sus)
+                                <tr style="border-bottom: 1px solid var(--color-border);">
+                                    <td class="py-3 px-3 whitespace-nowrap font-medium"
+                                        style="color: var(--color-text-primary);">{{ $sus->fecha }}</td>
+                                    <td class="py-3 px-3 whitespace-nowrap"
+                                        style="color: var(--color-text-secondary);">{{ $sus->hora }}</td>
+                                    <td class="py-3 px-3" style="color: var(--color-text-primary);">
+                                        <p class="font-medium">{{ $sus->numero_radicacion }}</p>
+                                        <p class="text-xs" style="color: var(--color-text-muted);">{{ Str::limit($sus->titulo, 60) }}</p>
+                                    </td>
+                                    <td class="py-3 px-3 whitespace-nowrap"
+                                        style="color: var(--color-text-secondary);">{{ $sus->lugar }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="flex flex-col items-center justify-center py-12 rounded-xl"
+                     style="background-color: var(--color-neutral-bg); border: 1px dashed var(--color-border);">
+                    <i class="fas fa-calendar-xmark text-3xl mb-3" style="color: var(--color-neutral);"></i>
+                    <p class="text-sm" style="color: var(--color-text-muted);">No hay sustentaciones programadas</p>
+                </div>
+            @endif
         </section>
+
+        {{-- Estado del entorno --}}
+        <aside class="rounded-2xl p-6 shadow-sm"
+               style="background-color: var(--color-surface); border: 1px solid var(--color-border);">
+            <p class="text-xs font-semibold uppercase tracking-widest mb-1"
+               style="color: var(--color-text-muted);">Sesión activa</p>
+            <h2 class="text-lg font-bold mb-4" style="color: var(--color-text-primary);">Estado</h2>
+
+            <dl class="space-y-3 text-sm">
+                <div class="rounded-xl px-4 py-3" style="background-color: var(--color-neutral-bg);">
+                    <dt class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">Facultad</dt>
+                    <dd class="font-medium" style="color: var(--color-text-primary);">
+                        {{ config('university.faculty_name') }}
+                    </dd>
+                </div>
+
+                <div class="rounded-xl px-4 py-3" style="background-color: var(--color-neutral-bg);">
+                    <dt class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">Rol</dt>
+                    <dd class="font-medium" style="color: var(--color-text-primary);">
+                        {{ session('perfil', 'Sin asignar') }}
+                    </dd>
+                </div>
+
+                <div class="rounded-xl px-4 py-3" style="background-color: var(--color-neutral-bg);">
+                    <dt class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">Accesos activos</dt>
+                    <dd class="font-medium" style="color: var(--color-text-primary);">
+                        {{ count(session('permisos', [])) }} opciones de menú
+                    </dd>
+                </div>
+
+                <div class="rounded-xl px-4 py-3" style="background-color: var(--color-success-bg);">
+                    <dt class="text-xs font-semibold mb-0.5" style="color: var(--color-success);">
+                        <i class="fas fa-circle-check mr-1"></i>Autenticación
+                    </dt>
+                    <dd class="font-medium" style="color: var(--color-text-primary);">Sesión verificada</dd>
+                </div>
+            </dl>
+        </aside>
     </div>
+
+</div>
+
 </x-app-layout>

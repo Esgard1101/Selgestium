@@ -17,19 +17,16 @@ class UniversidadDemoSeeder extends Seeder
                 'updated_at'  => now(),
             ]);
 
-            // Credencial genérica de desarrollo: password
-            // Los 4 usuarios originales conservan sus emails exactos.
+            // Contraseña uniforme de desarrollo: password
             $usuarios = [
-                // ── Originales (emails ya conocidos por los colaboradores) ──
-                ['nombre' => 'Cesar',  'apellido' => 'Administrativo', 'dni' => '00000001', 'email' => 'admin@selgestium.com',   'rol_id' => 9,  'creditos' => null],
-                ['nombre' => 'Juan',   'apellido' => 'Alumno',         'dni' => '00000002', 'email' => 'alumno@selgestium.com',  'rol_id' => 6,  'creditos' => 200],
-                ['nombre' => 'Maria',  'apellido' => 'Investigacion',  'dni' => '00000003', 'email' => 'ui@selgestium.com',      'rol_id' => 10, 'creditos' => null],
-                ['nombre' => 'Pedro',  'apellido' => 'Cientifico',     'dni' => '00000004', 'email' => 'cc@selgestium.com',      'rol_id' => 11, 'creditos' => null],
-                // ── Nuevos (roles faltantes) ──────────────────────────────
-                ['nombre' => 'Rosa',   'apellido' => 'Asesor',         'dni' => '00000007', 'email' => 'asesor@selgestium.com',  'rol_id' => 7,  'creditos' => null],
-                ['nombre' => 'Luis',   'apellido' => 'Profesor',       'dni' => '00000008', 'email' => 'profesor@selgestium.com','rol_id' => 8,  'creditos' => null],
-                ['nombre' => 'Ana',    'apellido' => 'Decana',         'dni' => '00000012', 'email' => 'decano@selgestium.com',  'rol_id' => 12, 'creditos' => null],
-                ['nombre' => 'Carlos', 'apellido' => 'Administrador',  'dni' => '00000013', 'email' => 'superadmin@selgestium.com','rol_id' => 13,'creditos' => null],
+                ['nombre' => 'Cesar',  'apellido' => 'Administrativo', 'dni' => '00000001', 'email' => 'admin@selgestium.com',      'rol_id' => 9,  'creditos' => null],
+                ['nombre' => 'Juan',   'apellido' => 'Alumno',         'dni' => '00000002', 'email' => 'alumno@selgestium.com',     'rol_id' => 6,  'creditos' => 200],
+                ['nombre' => 'Maria',  'apellido' => 'Investigacion',  'dni' => '00000003', 'email' => 'ui@selgestium.com',         'rol_id' => 10, 'creditos' => null],
+                ['nombre' => 'Pedro',  'apellido' => 'Cientifico',     'dni' => '00000004', 'email' => 'cc@selgestium.com',         'rol_id' => 11, 'creditos' => null],
+                ['nombre' => 'Rosa',   'apellido' => 'Asesor',         'dni' => '00000007', 'email' => 'asesor@selgestium.com',     'rol_id' => 7,  'creditos' => null],
+                ['nombre' => 'Luis',   'apellido' => 'Profesor',       'dni' => '00000008', 'email' => 'profesor@selgestium.com',   'rol_id' => 8,  'creditos' => null],
+                ['nombre' => 'Ana',    'apellido' => 'Decana',         'dni' => '00000012', 'email' => 'decano@selgestium.com',     'rol_id' => 12, 'creditos' => null],
+                ['nombre' => 'Carlos', 'apellido' => 'Administrador',  'dni' => '00000013', 'email' => 'superadmin@selgestium.com', 'rol_id' => 13, 'creditos' => null],
             ];
 
             foreach ($usuarios as $u) {
@@ -49,12 +46,14 @@ class UniversidadDemoSeeder extends Seeder
                 $personaId = DB::table('persona')->insertGetId($personaData);
 
                 $userId = DB::table('users')->insertGetId([
-                    'name'       => $u['nombre'] . ' ' . $u['apellido'],
-                    'email'      => $u['email'],
-                    'password'   => Hash::make('password'),
-                    'persona_id' => $personaId,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'name'              => $u['nombre'] . ' ' . $u['apellido'],
+                    'email'             => $u['email'],
+                    'password'          => Hash::make('password'),
+                    'persona_id'        => $personaId,
+                    // email_verified_at permite acceder sin verificacion en desarrollo
+                    'email_verified_at' => now(),
+                    'created_at'        => now(),
+                    'updated_at'        => now(),
                 ]);
 
                 DB::table('rolpersona')->insert([

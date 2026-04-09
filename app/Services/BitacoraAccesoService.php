@@ -44,6 +44,39 @@ class BitacoraAccesoService
         $this->insertar($usuarioId, 'sesion_expirada', $request, session('sucursal_id'));
     }
 
+    /**
+     * Lista los registros de acceso paginados para el admin de la sucursal activa.
+     * Acepta filtros: fecha_desde, fecha_hasta, accion.
+     */
+    public function listarPorSucursal(int $sucursalId, array $filtros = [], int $perPage = 50): object
+    {
+        $query = DB::table('bit_accesousuario as b')
+            ->leftJoin('users as u', 'b.usuario_id', '=', 'u.id')
+            ->where('b.sucursal_id', $sucursalId)
+            ->select([
+                'b.id',
+                'b.accion',
+                'b.ip',
+                'b.user_agent',
+                'b.created_at',
+                'u.name as usuario_nombre',
+                'u.email as usuario_email',
+            ])
+            ->orderByDesc('b.created_at');
+
+        if (!empty($filtros['fecha_desde'])) {
+            $query->whereDate('b.created_at', '>=', $filtros['fecha_desde']);
+        }
+        if (!empty($filtros['fecha_hasta'])) {
+            $query->whereDate('b.created_at', '<=', $filtros['fecha_hasta']);
+        }
+        if (!empty($filtros['accion'])) {
+            $query->where('b.accion', $filtros['accion']);
+        }
+
+        return $query->paginate($perPage)->withQueryString();
+    }
+
     private function insertar(?int $usuarioId, string $accion, Request $request, ?int $sucursalId): void
     {
         DB::table('bit_accesousuario')->insert([

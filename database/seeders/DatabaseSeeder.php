@@ -6,15 +6,22 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $this->call([
+            // Catálogos base (sin FK entre ellos)
             RolSeeder::class,
             FaseSeeder::class,
+            ParametroSeeder::class,
+
+            // Menú y permisos (opcionmenu antes que rol_opcionmenu)
+            OpcionmenuSeeder::class,
+
+            // Datos demo (sucursal + personas + usuarios + rolpersona)
             UniversidadDemoSeeder::class,
+
+            // Cruces rol → opcion (requiere roles y opciones ya insertados)
+            RolOpcionmenuSeeder::class,
         ]);
     }
 }
