@@ -10,122 +10,62 @@ class UniversidadDemoSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Sucursal base
-        $sucursalId = DB::table('sucursal')->insertGetId([
-            'descripcion' => 'Sede Central UNPRG',
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
+        DB::transaction(function () {
+            $sucursalId = DB::table('sucursal')->insertGetId([
+                'descripcion' => 'Sede Central UNPRG',
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
 
-        // ─── Usuarios de prueba por rol ───────────────────────────────────
+            // Credencial genérica de desarrollo: password
+            // Los 4 usuarios originales conservan sus emails exactos.
+            $usuarios = [
+                // ── Originales (emails ya conocidos por los colaboradores) ──
+                ['nombre' => 'Cesar',  'apellido' => 'Administrativo', 'dni' => '00000001', 'email' => 'admin@selgestium.com',   'rol_id' => 9,  'creditos' => null],
+                ['nombre' => 'Juan',   'apellido' => 'Alumno',         'dni' => '00000002', 'email' => 'alumno@selgestium.com',  'rol_id' => 6,  'creditos' => 200],
+                ['nombre' => 'Maria',  'apellido' => 'Investigacion',  'dni' => '00000003', 'email' => 'ui@selgestium.com',      'rol_id' => 10, 'creditos' => null],
+                ['nombre' => 'Pedro',  'apellido' => 'Cientifico',     'dni' => '00000004', 'email' => 'cc@selgestium.com',      'rol_id' => 11, 'creditos' => null],
+                // ── Nuevos (roles faltantes) ──────────────────────────────
+                ['nombre' => 'Rosa',   'apellido' => 'Asesor',         'dni' => '00000007', 'email' => 'asesor@selgestium.com',  'rol_id' => 7,  'creditos' => null],
+                ['nombre' => 'Luis',   'apellido' => 'Profesor',       'dni' => '00000008', 'email' => 'profesor@selgestium.com','rol_id' => 8,  'creditos' => null],
+                ['nombre' => 'Ana',    'apellido' => 'Decana',         'dni' => '00000012', 'email' => 'decano@selgestium.com',  'rol_id' => 12, 'creditos' => null],
+                ['nombre' => 'Carlos', 'apellido' => 'Administrador',  'dni' => '00000013', 'email' => 'superadmin@selgestium.com','rol_id' => 13,'creditos' => null],
+            ];
 
-        // Admin / Administrativo (rol_id = 9)
-        $personaAdminId = DB::table('persona')->insertGetId([
-            'nombre'      => 'Cesar',
-            'apellido'    => 'Administrativo',
-            'dni'         => '00000001',
-            'email'       => 'admin@selgestium.com',
-            'sucursal_id' => $sucursalId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
-        $userAdminId = DB::table('users')->insertGetId([
-            'name'        => 'Cesar Admin',
-            'email'       => 'admin@selgestium.com',
-            'password'    => Hash::make('password'),
-            'persona_id'  => $personaAdminId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
-        DB::table('rolpersona')->insert([
-            'persona_id'  => $personaAdminId,
-            'usuario_id'  => $userAdminId,
-            'rol_id'      => 9,
-            'sucursal_id' => $sucursalId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
+            foreach ($usuarios as $u) {
+                $personaData = [
+                    'nombre'      => $u['nombre'],
+                    'apellido'    => $u['apellido'],
+                    'dni'         => $u['dni'],
+                    'email'       => $u['email'],
+                    'sucursal_id' => $sucursalId,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ];
+                if (!is_null($u['creditos'])) {
+                    $personaData['creditos'] = $u['creditos'];
+                }
 
-        // Alumno (rol_id = 6)
-        $personaAlumnoId = DB::table('persona')->insertGetId([
-            'nombre'      => 'Juan',
-            'apellido'    => 'Alumno',
-            'dni'         => '00000002',
-            'email'       => 'alumno@selgestium.com',
-            'sucursal_id' => $sucursalId,
-            'creditos'    => 200,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
-        $userAlumnoId = DB::table('users')->insertGetId([
-            'name'        => 'Juan Alumno',
-            'email'       => 'alumno@selgestium.com',
-            'password'    => Hash::make('password'),
-            'persona_id'  => $personaAlumnoId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
-        DB::table('rolpersona')->insert([
-            'persona_id'  => $personaAlumnoId,
-            'usuario_id'  => $userAlumnoId,
-            'rol_id'      => 6,
-            'sucursal_id' => $sucursalId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
+                $personaId = DB::table('persona')->insertGetId($personaData);
 
-        // Unidad de Investigacion (rol_id = 10)
-        $personaUiId = DB::table('persona')->insertGetId([
-            'nombre'      => 'Maria',
-            'apellido'    => 'Investigacion',
-            'dni'         => '00000003',
-            'email'       => 'ui@selgestium.com',
-            'sucursal_id' => $sucursalId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
-        $userUiId = DB::table('users')->insertGetId([
-            'name'        => 'Maria UI',
-            'email'       => 'ui@selgestium.com',
-            'password'    => Hash::make('password'),
-            'persona_id'  => $personaUiId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
-        DB::table('rolpersona')->insert([
-            'persona_id'  => $personaUiId,
-            'usuario_id'  => $userUiId,
-            'rol_id'      => 10,
-            'sucursal_id' => $sucursalId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
+                $userId = DB::table('users')->insertGetId([
+                    'name'       => $u['nombre'] . ' ' . $u['apellido'],
+                    'email'      => $u['email'],
+                    'password'   => Hash::make('password'),
+                    'persona_id' => $personaId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
 
-        // Comite Cientifico (rol_id = 11)
-        $personaCcId = DB::table('persona')->insertGetId([
-            'nombre'      => 'Pedro',
-            'apellido'    => 'Cientifico',
-            'dni'         => '00000004',
-            'email'       => 'cc@selgestium.com',
-            'sucursal_id' => $sucursalId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
-        $userCcId = DB::table('users')->insertGetId([
-            'name'        => 'Pedro CC',
-            'email'       => 'cc@selgestium.com',
-            'password'    => Hash::make('password'),
-            'persona_id'  => $personaCcId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
-        DB::table('rolpersona')->insert([
-            'persona_id'  => $personaCcId,
-            'usuario_id'  => $userCcId,
-            'rol_id'      => 11,
-            'sucursal_id' => $sucursalId,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
+                DB::table('rolpersona')->insert([
+                    'persona_id'  => $personaId,
+                    'usuario_id'  => $userId,
+                    'rol_id'      => $u['rol_id'],
+                    'sucursal_id' => $sucursalId,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]);
+            }
+        });
     }
 }

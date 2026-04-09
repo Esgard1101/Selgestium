@@ -40,7 +40,6 @@
         <div class="flex h-screen bg-bg overflow-hidden">
             <aside class="hidden lg:flex lg:w-64 lg:flex-col bg-primary text-white overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <div class="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-                    <!-- University logo (adjust size here if needed) -->
                     <img src="{{ asset(config('university.logo_url')) }}" alt="{{ config('app.name', 'SELGESTIUN') }}" class="h-10 w-auto">
                     <div>
                         <p class="text-sm font-semibold tracking-wide">{{ config('app.name', 'SELGESTIUN') }}</p>
@@ -49,9 +48,6 @@
                 </div>
 
                 <nav class="flex-1 px-3 py-4 space-y-1">
-                    {{-- Sidebar menu is simulated for MVP. In next phase it will be resolved from permiso_usuario using session context. --}}
-
-                    {{-- Student Module --}}
                     @if ($rolSimulado === 6)
                         <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition {{ request()->routeIs('student.expediente.*') ? 'bg-warning text-primary font-bold' : 'text-white hover:bg-primary-light' }}">
                             <x-icons.document-text class="size-5" />
@@ -63,7 +59,6 @@
                         </a>
                     @endif
 
-                    {{-- Reviewer Module --}}
                     @if ($rolSimulado === 8)
                         <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition {{ request()->routeIs('review.expedientes.*') ? 'bg-warning text-primary font-bold' : 'text-white hover:bg-primary-light' }}">
                             <x-icons.folder-open class="size-5" />
@@ -75,7 +70,6 @@
                         </a>
                     @endif
 
-                    {{-- Admin Module --}}
                     @if ($rolSimulado === 9)
                         <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition {{ request()->routeIs('admin.expedientes.*') ? 'bg-warning text-primary font-bold' : 'text-white hover:bg-primary-light' }}">
                             <x-icons.home class="size-5" />
@@ -93,7 +87,6 @@
                 <header class="h-20 bg-primary shadow-sm border-b border-white/10">
                     <div class="h-full px-6 flex items-center justify-between gap-6 text-white">
                         <div class="flex items-center gap-3 min-w-0">
-                            <!-- University logo (adjust size here if needed) -->
                             <img src="{{ asset(config('university.logo_url')) }}" alt="{{ config('app.name', 'SELGESTIUN') }}" class="h-10 w-auto lg:hidden">
                             <div class="min-w-0">
                                 <p class="text-sm font-semibold leading-tight truncate">{{ config('app.name', 'SELGESTIUN') }}</p>
@@ -127,12 +120,6 @@
                                 </x-slot>
 
                                 <x-slot name="content">
-                                    <x-dropdown-link href="{{ route('profile.show') }}">
-                                        {{ __('app.profile') }}
-                                    </x-dropdown-link>
-
-                                    <div class="border-t border-gray-200"></div>
-
                                     <form method="POST" action="{{ route('logout') }}" x-data>
                                         @csrf
 
