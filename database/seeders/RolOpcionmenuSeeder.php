@@ -15,19 +15,19 @@ class RolOpcionmenuSeeder extends Seeder
      *
      * Opciones: 1=Dashboard, 2=RadicarExpediente, 3=AsignarJurados,
      *           4=Observaciones, 5=ProgramarSustentacion,
-     *           6=CerrarSustentacion, 7=HistorialAcceso
+     *           6=CerrarSustentacion, 7=HistorialAcceso, 8=PanelFAI
      */
     public function run(): void
     {
         $mapeo = [
-            6  => [1, 2],           // Alumno
-            7  => [1],              // Asesor Externo
-            8  => [1, 4],           // Profesor / Jurado
-            9  => [1, 3, 7],        // Administrativo
-            10 => [1, 3, 5, 6],     // Unidad de Investigacion
-            11 => [1, 3, 4, 5, 6],  // Comite Cientifico
-            12 => [1, 5, 6],        // Decanato
-            13 => [1, 2, 3, 4, 5, 6, 7], // Admin (acceso total)
+            6  => [1, 2],              // Alumno
+            7  => [1],                 // Asesor Externo
+            8  => [1, 4],              // Profesor / Jurado
+            9  => [1, 3, 7],           // Administrativo
+            10 => [1, 3, 5, 6, 8],     // Unidad de Investigacion
+            11 => [1, 3, 4, 5, 6, 8],  // Comite Cientifico
+            12 => [1, 5, 6],           // Decanato
+            13 => [1, 2, 3, 4, 5, 6, 7, 8], // Admin (acceso total)
         ];
 
         foreach ($mapeo as $rolId => $opciones) {

@@ -15,6 +15,7 @@
  *   5 = Programar Sustentacion
  *   6 = Cerrar Sustentacion
  *   7 = Historial de Acceso
+ *   8 = Panel FAI
  */
 return [
     'pur.create'                      => 2,
@@ -36,4 +37,10 @@ return [
     'sustentacion.cerrar.store'       => 6,
 
     'bitacora.acceso.index'           => 7,
+
+    // 8 = Panel FAI (ui, cc, admin)
+    'fai.panel.index'                 => 8,
+    'fai.panel.show'                  => 8,
+    'fai.creditos.show'               => 8,
+    'fai.creditos.store'              => 8,
 ];
