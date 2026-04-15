@@ -30,7 +30,7 @@ trait LibraryTrait
             'class' => $exception::class,
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
-            'user_id' => auth()->id(),
+            'user_id' => session('usuario_id'),
             'ip' => request()?->ip(),
             'sucursal_id' => session('sucursal_id'),
         ]);

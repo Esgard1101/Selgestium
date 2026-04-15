@@ -24,11 +24,17 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verificar.
             if (strlen($q) < 2) return response()->json([]);
 
             $resultados = \Illuminate\Support\Facades\DB::table('persona')
-                ->select('id', 'nombres', 'apellido_paterno', 'apellido_materno',
-                         'numero_documento', 'tipo_persona')
+                ->select(
+                    'id',
+                    'nombres',
+                    'apellido_paterno',
+                    'apellido_materno',
+                    'numero_documento',
+                    'tipo_persona'
+                )
                 ->where(function ($query) use ($q) {
                     $query->whereRaw("CONCAT(nombres, ' ', apellido_paterno, ' ', apellido_materno) ILIKE ?", ["%{$q}%"])
-                          ->orWhere('numero_documento', 'ILIKE', "%{$q}%");
+                        ->orWhere('numero_documento', 'ILIKE', "%{$q}%");
                 })
                 ->whereNull('deleted_at')
                 ->where('activo', true)
@@ -91,3 +97,11 @@ Route::middleware([
     Route::get('/fai/creditos',  [FaiController::class, 'showVerificacionCreditos'])->name('fai.creditos.show');
     Route::post('/fai/creditos', [FaiController::class, 'storeVerificacionCreditos'])->name('fai.creditos.store');
 });
+
+Route::post('/pur', [PurController::class, 'store'])->name('pur.store');
+
+Route::get('/pur', [PurController::class, 'index'])->name('pur.index');
+Route::get('/pur/create', [PurController::class, 'create'])->name('pur.create');
+Route::post('/pur/radicar', [PurController::class, 'store'])->name('pur.store');
+Route::get('/pur/{id}', [PurController::class, 'show'])->name('pur.show');
+Route::get('/pur/{id}/descargar', [\App\Http\Controllers\Web\PurController::class, 'descargar'])->name('pur.descargar');

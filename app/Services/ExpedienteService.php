@@ -44,16 +44,28 @@ class ExpedienteService
                 $expedienteGuardado = $this->insertSingleDB('expediente', 0, $datosExpediente);
                 $expedienteId = $expedienteGuardado->id;
 
-                // Guardar documento PDF
+                // Guardar documento PDF con trazabilidad de seguridad
                 if ($archivoPdf) {
-                    // El LibraryTrait de tu equipo pide subfolder y el archivo
+                    // Extraemos los datos de seguridad antes de mover el archivo
+                    $nombreOriginal = $archivoPdf->getClientOriginalName();
+                    $tamanio = $archivoPdf->getSize();
+                    $hash = hash_file('sha256', $archivoPdf->getRealPath());
+
+                    // Guardamos físicamente usando el Trait 
                     $rutaArchivo = $this->saveFile('expedientes/pdf', $archivoPdf);
 
+                    //Preparamos el array con la nueva estructura de la tabla
                     $datosDocumento = [
-                        'expediente_id' => $expedienteId,
-                        'ruta_archivo'  => $rutaArchivo,
-                        'tipo_documento' => 'proyecto'
+                        'expediente_id'       => $expedienteId,
+                        'tipo_documento'      => 'proyecto',
+                        'nombre_original'     => $nombreOriginal,
+                        'ruta_almacenamiento' => $rutaArchivo,
+                        'tamanio_bytes'       => $tamanio,
+                        'hash_sha256'         => $hash,
+                        'subido_por_id'       => $estudianteId // Quien sube el archivo
                     ];
+
+                    // Insertamos en la BD
                     $this->insertSingleDB('det_expedientedocumento', 0, $datosDocumento);
                 }
 
@@ -65,6 +77,14 @@ class ExpedienteService
                     'comentario'    => 'Radicación inicial del expediente'
                 ];
                 $this->insertSingleDB('det_expedientefase', 0, $datosFase);
+                $idUsuarioDestino = 5;
+
+                $this->derivarExpediente(
+                    $expedienteId,
+                    $estudianteId,
+                    $idUsuarioDestino,
+                    'Derivación automática para revisión de requisitos iniciales.'
+                );
 
                 return $numeroRadicacion;
             } catch (Exception $e) {
@@ -73,6 +93,15 @@ class ExpedienteService
                 throw $e;
             }
         });
+    }
+    public function listarPorEstudiante(int $estudianteId, int $sucursalId)
+    {
+        // Regla: Paginación server-side nativa de Laravel, ordenado por fecha desc
+        return \App\Models\Expediente::query()
+            //->where('estudiante_id', $estudianteId)
+            //->where('sucursal_id', $sucursalId)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10); // ¡Laravel hace la magia de los offsets y limits aquí!
     }
 
     /**
@@ -85,6 +114,7 @@ class ExpedienteService
 
         $ultimoExpediente = Expediente::where('sucursal_id', $sucursalId)
             ->where('numero_radicacion', 'like', "{$prefijo}%")
+            ->lockForUpdate()
             ->orderBy('id', 'desc')
             ->first();
 
@@ -97,5 +127,51 @@ class ExpedienteService
         $secuenciaFormateada = str_pad((string)$secuencia, 5, '0', STR_PAD_LEFT);
 
         return $prefijo . $secuenciaFormateada;
+    }
+
+    public function derivarExpediente(int $expedienteId, int $actorOrigenId, int $actorDestinoId, string $comentario)
+    {
+        return DB::transaction(function () use ($expedienteId, $actorOrigenId, $actorDestinoId, $comentario) {
+            try {
+                //  Registrar el movimiento en el timeline
+                $datosFase = [
+                    'expediente_id' => $expedienteId,
+                    'fase_id'       => 1,
+                    'actor_id'      => $actorOrigenId,
+                    'comentario'    => "Derivado al usuario ID {$actorDestinoId} - " . $comentario
+                ];
+                $this->insertSingleDB('det_expedientefase', 0, $datosFase);
+
+                // Supongamos que tienen 15 días para esta revisión inicial
+                $datosPlazo = [
+                    'expediente_id'     => $expedienteId,
+                    'fase_id'           => 1,
+                    'fecha_inicio'      => now(),
+                    'fecha_vencimiento' => now()->addDays(15), // Ajusta los días según tu regla de negocio
+                    'estado'            => 'activo',
+                    'created_at'        => now()
+                ];
+                // Usamos insertSingleDB y capturamos el objeto devuelto para sacar su ID
+                $plazoGuardado = $this->insertSingleDB('det_expedienteplazo', 0, $datosPlazo);
+
+                //  Generar la Alerta enlazada al plazo que acabamos de crear
+                $datosNotificacion = [
+                    'expediente_id'  => $expedienteId,
+                    'plazo_id'       => $plazoGuardado->id, // 
+                    'tipo'           => 'Derivación Automática',
+                    'mensaje'        => "Expediente derivado para revisión inicial.",
+                    'enviado_comite' => false,
+                    'fecha_alerta'   => now(),
+                    'created_at'     => now()
+                ];
+
+                $this->insertSingleDB('det_expedientealerta', 0, $datosNotificacion);
+
+                return true;
+            } catch (Exception $e) {
+                $this->logError($e);
+                throw $e;
+            }
+        });
     }
 }
