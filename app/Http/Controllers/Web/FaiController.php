@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreVerificacionCreditosRequest;
 use App\Services\FaiDsaService;
+use App\Services\FaiService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class FaiController extends Controller
 {
-    public function __construct(private FaiDsaService $faiDsaService) {}
+    public function __construct(
+        private FaiDsaService $faiDsaService,
+        private FaiService $faiService,
+    ) {}
 
     /**
      * GET /fai/creditos
@@ -85,5 +89,53 @@ class FaiController extends Controller
                 ->withInput()
                 ->withErrors(['error' => 'Error al registrar la verificación: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * GET /fai/panel
+     * Bandeja de expedientes con verificaciones FAI pendientes (F-17).
+     */
+    public function panelIndex()
+    {
+        try {
+            $expedientes = $this->faiService->verificacionesPendientes(
+                (int) session('sucursal_id')
+            );
+        } catch (\Throwable $e) {
+            $expedientes = collect();
+        }
+
+        return view('fai.bandeja', compact('expedientes'));
+    }
+
+    /**
+     * GET /fai/panel/{expedienteId}
+     * Tarjetas semafóricas de los 6 FAI para un expediente concreto (F-17).
+     */
+    public function panelExpediente(int $expedienteId)
+    {
+        try {
+            $expediente = DB::table('expediente as e')
+                ->join('persona as p', 'p.id', '=', 'e.estudiante_id')
+                ->select(
+                    'e.id',
+                    'e.numero_radicacion',
+                    'e.titulo',
+                    'e.fase_actual',
+                    DB::raw("CONCAT(p.nombre, ' ', p.apellido) AS estudiante")
+                )
+                ->where('e.id', $expedienteId)
+                ->where('e.sucursal_id', (int) session('sucursal_id'))
+                ->whereNull('e.deleted_at')
+                ->first();
+
+            abort_if(! $expediente, 404);
+
+            $resultados = $this->faiService->resultadosParaExpediente($expedienteId);
+        } catch (\Throwable $e) {
+            abort(500, $e->getMessage());
+        }
+
+        return view('fai.panel_expediente', compact('expediente', 'resultados'));
     }
 }

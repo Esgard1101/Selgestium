@@ -5,7 +5,9 @@
       "Bash(npm run:*)",
       "Bash(php -l c:/TEST_CODE/SELGESTIUM3.0/selgestiumapp/app/Services/FaiDsaService.php)",
       "Bash(php -l c:/TEST_CODE/SELGESTIUM3.0/selgestiumapp/app/Http/Controllers/Web/FaiController.php)",
-      "Bash(php -l c:/TEST_CODE/SELGESTIUM3.0/selgestiumapp/app/Http/Requests/StoreVerificacionCreditosRequest.php)"
+      "Bash(php -l c:/TEST_CODE/SELGESTIUM3.0/selgestiumapp/app/Http/Requests/StoreVerificacionCreditosRequest.php)",
+      "Bash(php -l app/Services/FaiService.php)",
+      "Bash(php -l app/Http/Controllers/Web/FaiController.php)"
     ]
   }
 }

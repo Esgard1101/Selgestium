@@ -80,6 +80,16 @@ class OpcionmenuSeeder extends Seeder
                 'orden'       => 1,
                 'activo'      => true,
             ],
+            // ID 8 — UI / CC / Admin: panel FAI unificado (F-17)
+            [
+                'id'          => 8,
+                'ruta_nombre' => 'fai.panel.index',
+                'descripcion' => 'Panel FAI',
+                'icono'       => 'fas fa-filter',
+                'grupo'       => 'FAI',
+                'orden'       => 1,
+                'activo'      => true,
+            ],
         ];
 
         foreach ($items as $item) {
