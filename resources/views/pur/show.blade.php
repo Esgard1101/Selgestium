@@ -83,16 +83,40 @@
 
                 <div id="content-timeline" class="tab-content hidden">
                     <h3 class="text-lg font-bold text-gray-800 mb-4">Historial del Expediente</h3>
-                    <ul class="relative border-l border-gray-200 ml-3">
-                        <li class="mb-6 ml-6">
-                            <span class="absolute flex items-center justify-center w-6 h-6 bg-indigo-100 rounded-full -left-3 ring-8 ring-white">
-                                <i class="fa-solid fa-check text-indigo-600 text-xs"></i>
+                    <div class="relative border-l border-gray-200 ml-3 mt-4">
+
+                        <div class="mb-8 ml-6">
+                            <span class="absolute flex items-center justify-center w-6 h-6 bg-green-100 rounded-full -left-3 ring-8 ring-white">
+                                <i class="fa-solid fa-check text-green-500 text-xs"></i>
                             </span>
-                            <h3 class="flex items-center mb-1 text-sm font-semibold text-gray-900">Expediente Radicado</h3>
-                            <time class="block mb-2 text-xs font-normal leading-none text-gray-400">{{ $expediente->created_at->format('d/m/Y H:i A') }}</time>
-                            <p class="mb-4 text-sm font-normal text-gray-500">El alumno registró el proyecto en el sistema.</p>
-                        </li>
-                    </ul>
+                            <h4 class="font-bold text-gray-900">Fase 1: Radicación (PUR)</h4>
+                            <p class="text-sm text-gray-500">Registrado el {{ $expediente->created_at->format('d/m/Y H:i A') }}</p>
+                        </div>
+
+                        <div class="mb-8 ml-6">
+                            @php
+                            $fase2Status = $expediente->fase_actual > 1 ? 'bg-green-100 text-green-500' : ($expediente->fase_actual == 1 ? 'bg-blue-100 text-blue-500 animate-pulse' : 'bg-gray-100 text-gray-400');
+                            $fase2Icon = $expediente->fase_actual > 1 ? 'fa-check' : ($expediente->fase_actual == 1 ? 'fa-spinner fa-spin' : 'fa-clock');
+                            @endphp
+                            <span class="absolute flex items-center justify-center w-6 h-6 {{ $fase2Status }} rounded-full -left-3 ring-8 ring-white">
+                                <i class="fa-solid {{ $fase2Icon }} text-xs"></i>
+                            </span>
+                            <h4 class="font-bold text-gray-900">Fase 2: Revisión (FAI)</h4>
+                            <p class="text-sm text-gray-500">Validación de requisitos por coordinación.</p>
+                        </div>
+
+                        <div class="ml-6">
+                            @php
+                            $fase3Status = $expediente->fase_actual > 2 ? 'bg-green-100 text-green-500' : ($expediente->fase_actual == 2 ? 'bg-blue-100 text-blue-500 animate-pulse' : 'bg-gray-100 text-gray-400');
+                            $fase3Icon = $expediente->fase_actual > 2 ? 'fa-check' : ($expediente->fase_actual == 2 ? 'fa-spinner fa-spin' : 'fa-clock');
+                            @endphp
+                            <span class="absolute flex items-center justify-center w-6 h-6 {{ $fase3Status }} rounded-full -left-3 ring-8 ring-white">
+                                <i class="fa-solid {{ $fase3Icon }} text-xs"></i>
+                            </span>
+                            <h4 class="font-bold text-gray-900">Fase 3: Jurados</h4>
+                            <p class="text-sm text-gray-500">Asignación de asesores y resolución.</p>
+                        </div>
+                    </div>
                 </div>
 
             </div>
