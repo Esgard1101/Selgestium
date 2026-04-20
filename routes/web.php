@@ -96,6 +96,10 @@ Route::middleware([
     // RF02.1 — Créditos académicos (manual en Sprint 1; API en Sprint 2)
     Route::get('/fai/creditos',  [FaiController::class, 'showVerificacionCreditos'])->name('fai.creditos.show');
     Route::post('/fai/creditos', [FaiController::class, 'storeVerificacionCreditos'])->name('fai.creditos.store');
+
+    // F-17 — Panel FAI unificado (rol: ui, cc, admin)
+    Route::get('/fai/panel',                [FaiController::class, 'panelIndex'])     ->name('fai.panel.index');
+    Route::get('/fai/panel/{expedienteId}', [FaiController::class, 'panelExpediente'])->name('fai.panel.show');
 });
 
 Route::post('/pur', [PurController::class, 'store'])->name('pur.store');
