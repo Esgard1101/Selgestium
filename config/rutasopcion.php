@@ -27,6 +27,8 @@ return [
 
     'expediente.observaciones.view'   => 4,
     'expediente.observaciones.registrar' => 4,
+    'jurado.veredicto'                => 4,
+    'jurado.veredicto.store'          => 4,
 
     'sustentacion.programar.index'    => 5,
     'sustentacion.programar.show'     => 5,
@@ -43,4 +45,12 @@ return [
     'fai.panel.show'                  => 8,
     'fai.creditos.show'               => 8,
     'fai.creditos.store'              => 8,
+    'fai.etapa2.index'                => 8,
+    'fai.etapa2.store'                => 8,
+
+    // 10 = Control de Plazos
+    'plazo.dashboard'                 => 10,
+
+    // 11 = Calendario
+    'sustentacion.calendario'         => 11,
 ];

@@ -224,4 +224,26 @@ class ExpedienteService
             }
         });
     }
+    /**
+     * Cierra el expediente de forma definitiva.
+     */
+    public function cerrar(int $expedienteId, int $actorId): void
+    {
+        DB::transaction(function () use ($expedienteId, $actorId) {
+            DB::table('expediente')
+                ->where('id', $expedienteId)
+                ->update([
+                    'estado' => 'cerrado',
+                    'updated_at' => now(),
+                ]);
+
+            DB::table('bit_expediente')->insert([
+                'expediente_id' => $expedienteId,
+                'actor_id' => $actorId,
+                'accion' => 'cierre_expediente',
+                'ip' => request()->ip(),
+                'created_at' => now(),
+            ]);
+        });
+    }
 }

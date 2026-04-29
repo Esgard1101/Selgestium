@@ -30,23 +30,23 @@ class OpcionmenuSeeder extends Seeder
                 'orden'       => 1,
                 'activo'      => true,
             ],
-            // ID 3 — UI / Administrativo / Admin: asignar jurados
+            // ID 3 — UI / Administrativo / Admin / CC: asignar jurados
             [
                 'id'          => 3,
-                'ruta_nombre' => 'expediente.asignar-jurados.view',
-                'descripcion' => 'Asignar Jurados',
+                'ruta_nombre' => 'jurado.asignar',
+                'descripcion' => 'Asignar Jurado',
                 'icono'       => 'fas fa-user-check',
-                'grupo'       => 'Expediente',
+                'grupo'       => 'Jurado',
                 'orden'       => 2,
                 'activo'      => true,
             ],
             // ID 4 — Profesor / CC: registrar observaciones
             [
                 'id'          => 4,
-                'ruta_nombre' => 'expediente.observaciones.view',
-                'descripcion' => 'Observaciones',
+                'ruta_nombre' => 'jurado.mis_revisiones',
+                'descripcion' => 'Mis Revisiones',
                 'icono'       => 'fas fa-comments',
-                'grupo'       => 'Expediente',
+                'grupo'       => 'Jurado',
                 'orden'       => 3,
                 'activo'      => true,
             ],
@@ -88,6 +88,36 @@ class OpcionmenuSeeder extends Seeder
                 'icono'       => 'fas fa-filter',
                 'grupo'       => 'FAI',
                 'orden'       => 1,
+                'activo'      => true,
+            ],
+            // ID 9 — FAI Etapa II
+            [
+                'id'          => 9,
+                'ruta_nombre' => 'fai.etapa2.index',
+                'descripcion' => 'FAI Etapa II',
+                'icono'       => 'fas fa-graduation-cap',
+                'grupo'       => 'FAI',
+                'orden'       => 2,
+                'activo'      => true,
+            ],
+            // ID 10 — UI / CC: Control de Plazos
+            [
+                'id'          => 10,
+                'ruta_nombre' => 'plazo.dashboard',
+                'descripcion' => 'Control de Plazos',
+                'icono'       => 'fas fa-clock',
+                'grupo'       => 'Plazos',
+                'orden'       => 1,
+                'activo'      => true,
+            ],
+            // ID 11 — Todos: Calendario de Sustentaciones
+            [
+                'id'          => 11,
+                'ruta_nombre' => 'sustentacion.calendario',
+                'descripcion' => 'Calendario',
+                'icono'       => 'fas fa-calendar-days',
+                'grupo'       => 'Sustentacion',
+                'orden'       => 3,
                 'activo'      => true,
             ],
         ];

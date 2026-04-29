@@ -14,14 +14,25 @@ class StoreObservacionRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     */
     public function rules(): array
     {
         return [
-            'expediente_id' => 'required|integer|exists:expediente,id',
-            'jurado_id' => 'required|integer|exists:persona,id',
-            'ronda' => 'required|integer|min:1',
-            'descripcion' => 'required|string',
-            'tipo_veredicto' => 'required|string|in:aprobado,observado',
+            'expediente_id' => 'required|exists:expediente,id',
+            'tipoobservacion_id' => 'nullable',
+            'descripcion' => 'required|string|min:20',
+        ];
+    }
+
+    /**
+     * Get custom validation messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'descripcion.min' => 'La descripción de la observación debe tener al menos 20 caracteres.',
         ];
     }
 }

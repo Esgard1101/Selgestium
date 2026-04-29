@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\ObservacionController;
 use App\Http\Controllers\Web\SustentacionController;
 use App\Http\Controllers\Web\BitacoraAccesoController;
 use App\Http\Controllers\Web\FaiController;
+use App\Http\Controllers\Web\PlazoController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -26,24 +27,21 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verificar.
             $resultados = \Illuminate\Support\Facades\DB::table('persona')
                 ->select(
                     'id',
-                    'nombres',
-                    'apellido_paterno',
-                    'apellido_materno',
-                    'numero_documento',
-                    'tipo_persona'
+                    'nombre',
+                    'apellido',
+                    'dni'
                 )
                 ->where(function ($query) use ($q) {
-                    $query->whereRaw("CONCAT(nombres, ' ', apellido_paterno, ' ', apellido_materno) ILIKE ?", ["%{$q}%"])
-                        ->orWhere('numero_documento', 'ILIKE', "%{$q}%");
+                    $query->whereRaw("CONCAT(nombre, ' ', apellido) ILIKE ?", ["%{$q}%"])
+                        ->orWhere('dni', 'ILIKE', "%{$q}%");
                 })
                 ->whereNull('deleted_at')
-                ->where('activo', true)
                 ->limit(10)
                 ->get()
                 ->map(fn($p) => [
                     'id'       => $p->id,
-                    'label'    => "{$p->nombres} {$p->apellido_paterno} {$p->apellido_materno}",
-                    'sublabel' => ucfirst($p->tipo_persona) . ' · ' . $p->numero_documento,
+                    'label'    => "{$p->nombre} {$p->apellido}",
+                    'sublabel' => 'DNI · ' . $p->dni,
                 ]);
 
             return response()->json($resultados);
@@ -62,20 +60,69 @@ Route::middleware([
 
     Route::get('/dashboard', function () {
         $sustentaciones = app(\App\Services\SustentacionService::class)->obtenerProgramadas();
-        return view('dashboard', compact('sustentaciones'));
+
+        $plazos = DB::table('controlplazo')->get();
+        $vencidosHoy = 0;
+        $porVencer3Dias = 0;
+        $art123dHabilitados = 0;
+        $ahora = now();
+
+        foreach ($plazos as $plazo) {
+            $fechaVenc = \Carbon\Carbon::parse($plazo->fecha_vencimiento);
+            if ($plazo->vencido || $fechaVenc->isPast()) {
+                if ($fechaVenc->isToday()) {
+                    $vencidosHoy++;
+                }
+            }
+            if (!$plazo->vencido && !$fechaVenc->isPast()) {
+                $dias = 0;
+                $actual = $ahora->copy();
+                while ($actual->lt($fechaVenc)) {
+                    $actual->addDay();
+                    if (!$actual->isWeekend()) {
+                        $dias++;
+                    }
+                }
+                if ($dias <= 3 && $dias > 0) {
+                    $porVencer3Dias++;
+                }
+            }
+            if ($plazo->art123d_habilitado) {
+                $art123dHabilitados++;
+            }
+        }
+
+        return view('dashboard', compact(
+            'sustentaciones',
+            'vencidosHoy',
+            'porVencer3Dias',
+            'art123dHabilitados'
+        ));
     })->name('dashboard');
 
-    // ─── Expediente: Asignación de jurados (UI) ───────────────────────────
-    Route::get('/expediente/asignar-jurados', [JuradoController::class, 'showAsignar'])
-        ->name('expediente.asignar-jurados.view');
-    Route::post('/expediente/asignar-jurados', [JuradoController::class, 'asignar'])
-        ->name('expediente.asignar-jurados');
+    // ─── Jurado: Asignación y Revisiones (F-12) ───────────────────────────
+    Route::get('/jurado/asignar', [JuradoController::class, 'indexAsignar'])
+        ->name('jurado.asignar');
+    Route::get('/jurado/asignar/{expedienteId}', [JuradoController::class, 'showAsignar'])
+        ->name('jurado.asignar.show');
+    Route::post('/jurado/asignar', [JuradoController::class, 'asignar'])
+        ->name('jurado.asignar.store');
+    Route::get('/jurado/mis-revisiones', [JuradoController::class, 'misRevisiones'])
+        ->name('jurado.mis_revisiones');
+
     Route::get('/expediente/resolucion/{id}', [JuradoController::class, 'verResolucion'])
         ->name('expediente.resolucion');
 
+    // F-22: Veredicto y Aprobación Consolidada
+    Route::get('/jurado/veredicto/{expedienteId}', [JuradoController::class, 'veredicto'])->name('jurado.veredicto');
+    Route::post('/jurado/veredicto', [JuradoController::class, 'storeVeredicto'])->name('jurado.veredicto.store');
+    Route::post('/jurado/generar-otp', [JuradoController::class, 'generarOtp'])->name('jurado.otp.generar');
+
     // ─── Expediente: Observaciones de jurados ─────────────────────────────
-    Route::get('/expediente/observaciones',  [ObservacionController::class, 'showRegistrar'])->name('expediente.observaciones.view');
-    Route::post('/expediente/observaciones', [ObservacionController::class, 'registrar'])->name('expediente.observaciones.registrar');
+    Route::get('/jurado/observaciones/{expedienteId}', [ObservacionController::class, 'showObservaciones'])
+        ->name('jurado.observaciones.show');
+    Route::post('/jurado/observaciones', [ObservacionController::class, 'storeObservacion'])
+        ->name('jurado.observaciones.store');
 
     // ─── Sustentación ─────────────────────────────────────────────────────
     Route::get('/sustentacion/programar',              [SustentacionController::class, 'indexProgramar'])->name('sustentacion.programar.index');
@@ -84,6 +131,7 @@ Route::middleware([
     Route::get('/sustentacion/cerrar',               [SustentacionController::class, 'indexCerrar'])->name('sustentacion.cerrar.index');
     Route::get('/sustentacion/cerrar/{expedienteId}', [SustentacionController::class, 'showCerrar'])->name('sustentacion.cerrar.show');
     Route::post('/sustentacion/cerrar',                  [SustentacionController::class, 'cerrar'])->name('sustentacion.cerrar.store');
+    Route::get('/sustentacion/calendario',               [SustentacionController::class, 'calendario'])->name('sustentacion.calendario');
 
     // ─── PUR: Radicación de proyectos ─────────────────────────────────────
     Route::get('/pur/radicar',  [PurController::class, 'create'])->name('pur.create');
@@ -92,10 +140,17 @@ Route::middleware([
     // ─── Seguridad: Bitácora de acceso ────────────────────────────────────
     Route::get('/seguridad/bitacora-acceso', [BitacoraAccesoController::class, 'index'])->name('bitacora.acceso.index');
 
+    // ─── Control de Plazos (F-21) ─────────────────────────────────────────
+    Route::get('/plazos', [PlazoController::class, 'dashboard'])->name('plazo.dashboard');
+
     // ─── FAI: Verificaciones administrativas (rol: ui) ────────────────────
     // RF02.1 — Créditos académicos (manual en Sprint 1; API en Sprint 2)
     Route::get('/fai/creditos',  [FaiController::class, 'showVerificacionCreditos'])->name('fai.creditos.show');
     Route::post('/fai/creditos', [FaiController::class, 'storeVerificacionCreditos'])->name('fai.creditos.store');
+
+    // F-14 — FAI Etapa II (Bachiller + Voucher de Sustentación)
+    Route::get('/fai/etapa2', [FaiController::class, 'showFaiEtapa2'])->name('fai.etapa2.index');
+    Route::post('/fai/etapa2', [FaiController::class, 'storeFaiEtapa2'])->name('fai.etapa2.store');
 
     // F-17 — Panel FAI unificado (rol: ui, cc, admin)
     Route::get('/fai/panel',                [FaiController::class, 'panelIndex'])->name('fai.panel.index');

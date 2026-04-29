@@ -20,14 +20,14 @@ class RolOpcionmenuSeeder extends Seeder
     public function run(): void
     {
         $mapeo = [
-            6  => [1, 2],              // Alumno
-            7  => [1],                 // Asesor Externo
-            8  => [1, 4],              // Profesor / Jurado
-            9  => [1, 3, 7],           // Administrativo
-            10 => [1, 3, 5, 6, 8],     // Unidad de Investigacion
-            11 => [1, 3, 4, 5, 6, 8],  // Comite Cientifico
-            12 => [1, 5, 6],           // Decanato
-            13 => [1, 2, 3, 4, 5, 6, 7, 8], // Admin (acceso total)
+            6  => [1, 2, 11],              // Alumno
+            7  => [1, 11],                 // Asesor Externo
+            8  => [1, 4, 11],              // Profesor / Jurado
+            9  => [1, 3, 7, 11],           // Administrativo
+            10 => [1, 3, 5, 6, 8, 9, 10, 11],     // Unidad de Investigacion
+            11 => [1, 3, 4, 5, 6, 8, 9, 10, 11],  // Comite Cientifico
+            12 => [1, 5, 6, 11],           // Decanato
+            13 => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], // Admin (acceso total)
         ];
 
         foreach ($mapeo as $rolId => $opciones) {

@@ -11,67 +11,98 @@ class PlazoService
     use DataBaseTrait;
 
     /**
-     * Inicia un nuevo plazo para un expediente y fase.
+     * Inicia un nuevo plazo para un expediente y fase (15 días hábiles).
      */
-    public function asignarPlazo(int $expedienteId, int $faseId, int $dias = 15): void
+    public function iniciar(int $expedienteId, int $faseId): void
     {
         $fechaInicio = now();
-        $fechaVencimiento = $fechaInicio->copy()->addDays($dias);
+        $fechaVencimiento = $fechaInicio->copy();
+        
+        $diasHabiles = 15;
+        $diasAgregados = 0;
 
-        $this->insertSingleDB('det_expedienteplazo', 0, [
+        while ($diasAgregados < $diasHabiles) {
+            $fechaVencimiento->addDay();
+            if (!$fechaVencimiento->isWeekend()) {
+                $diasAgregados++;
+            }
+        }
+
+        DB::table('controlplazo')->insert([
             'expediente_id' => $expedienteId,
             'fase_id' => $faseId,
             'fecha_inicio' => $fechaInicio,
             'fecha_vencimiento' => $fechaVencimiento,
-            'estado' => 'activo',
+            'dias_habiles' => $diasHabiles,
+            'vencido' => false,
+            'art123d_habilitado' => false,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
     /**
-     * Verifica si el plazo de un expediente en su fase actual ha vencido.
+     * Job nocturno: actualiza vencido=true y encola alertas.
      */
-    public function verificarVencimiento(int $expedienteId): bool
+    public function verificarVencidos(): void
     {
-        $plazo = DB::table('det_expedienteplazo')
-            ->where('expediente_id', $expedienteId)
-            ->where('estado', 'activo')
-            ->whereNull('deleted_at')
-            ->orderBy('created_at', 'desc')
-            ->first();
+        $vencidos = DB::table('controlplazo')
+            ->where('vencido', false)
+            ->where('fecha_vencimiento', '<=', now())
+            ->get();
 
-        if ($plazo && Carbon::parse($plazo->fecha_vencimiento)->isPast()) {
-            DB::table('det_expedienteplazo')
+        foreach ($vencidos as $plazo) {
+            DB::table('controlplazo')
                 ->where('id', $plazo->id)
-                ->update(['estado' => 'vencido']);
-            
-            $this->registrarAlerta($plazo);
-            
-            return true;
-        }
+                ->update([
+                    'vencido' => true,
+                    'updated_at' => now()
+                ]);
 
-        return false;
+            DB::table('alertaplazo')->insert([
+                'controlplazo_id' => $plazo->id,
+                'expediente_id' => $plazo->expediente_id,
+                'destinatario_id' => null,
+                'tipo_alerta' => 'vencimiento',
+                'canal' => 'interno',
+                'created_at' => now(),
+            ]);
+        }
     }
 
     /**
-     * Registra una alerta formal y simula notificación al comité (Art. 123-d).
+     * Verifica regla de 2/3 jurados aprobados + plazo vencido.
      */
-    protected function registrarAlerta(object $plazo): void
+    public function verificarArt123d(int $expedienteId): void
     {
-        $existe = DB::table('det_expedientealerta')
-            ->where('plazo_id', $plazo->id)
-            ->exists();
+        $plazo = DB::table('controlplazo')
+            ->where('expediente_id', $expedienteId)
+            ->where('vencido', true)
+            ->first();
 
-        if (!$existe) {
-            $this->insertSingleDB('det_expedientealerta', 0, [
-                'expediente_id' => $plazo->expediente_id,
-                'plazo_id' => $plazo->id,
-                'tipo' => 'vencimiento_15_dias',
-                'mensaje' => "El expediente con ID {$plazo->expediente_id} ha superado el plazo de 15 días en la fase de revisión (Art. 123-d).",
-                'enviado_comite' => true,
-                'fecha_alerta' => now(),
-            ]);
+        if ($plazo) {
+            $aprobados = DB::table('det_expedientejurado')
+                ->where('expediente_id', $expedienteId)
+                ->where('aprobado', true)
+                ->count();
 
-            \Illuminate\Support\Facades\Log::info("Notificación encolada al Comité de Ética (Art. 123-d) para expediente {$plazo->expediente_id}");
+            if ($aprobados === 2) {
+                DB::table('controlplazo')
+                    ->where('id', $plazo->id)
+                    ->update([
+                        'art123d_habilitado' => true,
+                        'updated_at' => now()
+                    ]);
+
+                DB::table('alertaplazo')->insert([
+                    'controlplazo_id' => $plazo->id,
+                    'expediente_id' => $expedienteId,
+                    'destinatario_id' => null,
+                    'tipo_alerta' => 'art123d',
+                    'canal' => 'interno',
+                    'created_at' => now(),
+                ]);
+            }
         }
     }
 }
