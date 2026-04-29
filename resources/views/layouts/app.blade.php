@@ -129,10 +129,6 @@
                     @php
                     $activo = $item->ruta_nombre && request()->routeIs($item->ruta_nombre . '*');
                     @endphp
-                    @foreach ($items as $item)
-                    @php
-                    $activo = $item->ruta_nombre && request()->routeIs($item->ruta_nombre . '*');
-                    @endphp
 
                     <a href="{{ $item->ruta_nombre ? route($item->ruta_nombre) : '#' }}"
                         @class([ 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors duration-150 mb-0.5' , 'bg-white/20 text-white font-semibold'=> $activo,
@@ -141,7 +137,6 @@
                         <i class="{{ $item->icono ?? 'fas fa-circle' }} w-4 text-center flex-shrink-0" style="font-size: 0.875rem;"></i>
                         <span>{{ $item->descripcion }}</span>
                     </a>
-                    @endforeach
                     @endforeach
                 </div>
                 @empty
