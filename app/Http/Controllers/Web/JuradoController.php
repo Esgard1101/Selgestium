@@ -23,13 +23,18 @@ class JuradoController extends Controller
      */
     public function indexAsignar()
     {
-        // Se asume que el Comité Científico (fase 4) realiza la asignación
         $expedientes = DB::table('expediente')
-            ->where('estado', '!=', 'cerrado')
+            ->leftJoin('persona as est', 'expediente.estudiante_id', '=', 'est.id')
+            ->select('expediente.*', DB::raw("CONCAT(est.nombre, ' ', est.apellido) as estudiante_nombre"))
+            ->where('expediente.estado', '!=', 'cerrado')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('jurado.asignar_index', compact('expedientes'));
+        $pendientesCount = DB::table('expediente')->where('estado', '!=', 'cerrado')->count();
+        $juradosActivosCount = DB::table('rolpersona')->where('rol_id', 8)->count();
+        $resolucionesCount = DB::table('resoluciones')->count();
+
+        return view('jurado.asignar_index', compact('expedientes', 'pendientesCount', 'juradosActivosCount', 'resolucionesCount'));
     }
 
     /**
@@ -37,13 +42,28 @@ class JuradoController extends Controller
      */
     public function showAsignar($expedienteId)
     {
-        $expediente = DB::table('expediente')->where('id', $expedienteId)->first();
+        $expediente = DB::table('expediente')
+            ->leftJoin('persona as est', 'expediente.estudiante_id', '=', 'est.id')
+            ->leftJoin('persona as ase', 'expediente.asesor_id', '=', 'ase.id')
+            ->leftJoin('sucursal', 'expediente.sucursal_id', '=', 'sucursal.id')
+            ->select(
+                'expediente.*', 
+                DB::raw("CONCAT(est.nombre, ' ', est.apellido) as estudiante_nombre"), 
+                DB::raw("CONCAT(ase.nombre, ' ', ase.apellido) as asesor_nombre"),
+                'sucursal.descripcion as sucursal_nombre'
+            )
+            ->where('expediente.id', $expedienteId)
+            ->first();
         
         if (!$expediente) {
             return redirect()->route('jurado.asignar')->withErrors(['error' => 'Expediente no encontrado.']);
         }
 
-        return view('jurado.asignar', compact('expediente'));
+        $pendientesCount = DB::table('expediente')->where('estado', '!=', 'cerrado')->count();
+        $juradosActivosCount = DB::table('rolpersona')->where('rol_id', 8)->count();
+        $resolucionesCount = DB::table('resoluciones')->count();
+
+        return view('jurado.asignar', compact('expediente', 'pendientesCount', 'juradosActivosCount', 'resolucionesCount'));
     }
 
     /**
