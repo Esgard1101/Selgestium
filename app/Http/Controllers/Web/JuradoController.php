@@ -139,4 +139,78 @@ class JuradoController extends Controller
             return back()->withErrors(['error' => 'No se pudo visualizar la resolución: ' . $e->getMessage()]);
         }
     }
+
+    /**
+     * Cargar vista de emisión de veredicto.
+     */
+    public function veredicto($expedienteId)
+    {
+        $expediente = DB::table('expediente')
+            ->leftJoin('persona as est', 'expediente.estudiante_id', '=', 'est.id')
+            ->select('expediente.*', DB::raw("CONCAT(est.nombre, ' ', est.apellido) as estudiante_nombre"))
+            ->where('expediente.id', $expedienteId)
+            ->first();
+
+        if (!$expediente) {
+            abort(404, 'Expediente no encontrado.');
+        }
+
+        $jurados = DB::table('det_expedientejurado')
+            ->join('persona', 'det_expedientejurado.jurado_id', '=', 'persona.id')
+            ->where('det_expedientejurado.expediente_id', $expedienteId)
+            ->where('det_expedientejurado.activo', true)
+            ->select('det_expedientejurado.*', 'persona.nombre', 'persona.apellido')
+            ->get();
+
+        $juradoActual = $jurados->where('jurado_id', auth()->user()->persona_id)->first();
+
+        return view('jurado.veredicto', compact('expediente', 'jurados', 'juradoActual'));
+    }
+
+    /**
+     * Encolar OTP de 2FA para la firma.
+     */
+    public function generarOtp(Request $request)
+    {
+        $juradoId = auth()->user()->persona_id ?? null;
+        $user = DB::table('users')->where('persona_id', $juradoId)->first();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Usuario no encontrado.'], 404);
+        }
+
+        $otp = app(\App\Services\TwoFactorService::class)->generarCodigo($user->id, 'firma_jurado', $request->expediente_id);
+
+        \Illuminate\Support\Facades\Log::info("Código 2FA emitido para Jurado {$juradoId}: {$otp}");
+
+        return response()->json(['success' => true, 'message' => 'Código enviado satisfactoriamente.']);
+    }
+
+    /**
+     * Procesar el voto del jurado.
+     */
+    public function storeVeredicto(Request $request)
+    {
+        $request->validate([
+            'expediente_id' => 'required|integer',
+            'voto'          => 'required|boolean',
+            'codigo_2fa'    => 'required|string'
+        ]);
+
+        try {
+            $juradoId = auth()->user()->persona_id ?? auth()->id();
+
+            $this->juradoService->registrarVeredicto(
+                $request->expediente_id,
+                $juradoId,
+                (bool) $request->voto,
+                $request->codigo_2fa,
+                $request->ip()
+            );
+
+            return redirect()->route('jurado.mis_revisiones')->with('success', 'Veredicto registrado con éxito.');
+        } catch (Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
 }

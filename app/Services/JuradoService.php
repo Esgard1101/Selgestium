@@ -114,4 +114,88 @@ class JuradoService
             'updated_at' => now(),
         ]);
     }
+
+    /**
+     * Registra el veredicto de un jurado previa verificación 2FA.
+     */
+    public function registrarVeredicto(int $expedienteId, int $juradoId, bool $aprobado, string $codigo2fa, string $ip = null): void
+    {
+        $user = DB::table('users')->where('persona_id', $juradoId)->first();
+        if (!$user) {
+            throw new Exception("El jurado no posee usuario registrado para autenticación 2FA.");
+        }
+
+        $esValido = app(TwoFactorService::class)->verificarCodigo($user->id, $codigo2fa, 'firma_jurado');
+        if (!$esValido) {
+            throw new Exception("El código 2FA ingresado es incorrecto o ha caducado.");
+        }
+
+        DB::transaction(function () use ($expedienteId, $juradoId, $aprobado, $codigo2fa, $ip) {
+            DB::table('det_expedientejurado')
+                ->where('expediente_id', $expedienteId)
+                ->where('jurado_id', $juradoId)
+                ->update([
+                    'aprobado' => $aprobado,
+                    'fecha_evaluacion' => now(),
+                    'updated_at' => now(),
+                ]);
+
+            DB::table('bit_firma')->insert([
+                'expediente_id' => $expedienteId,
+                'jurado_id' => $juradoId,
+                'codigo_2fa' => $codigo2fa,
+                'ip_origen' => $ip ?? request()->ip(),
+                'fecha_firma' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $this->verificarAprobacionConsolidada($expedienteId);
+        });
+    }
+
+    /**
+     * Verifica si se cumple consenso para avanzar la fase.
+     */
+    public function verificarAprobacionConsolidada(int $expedienteId): void
+    {
+        $jurados = DB::table('det_expedientejurado')
+            ->where('expediente_id', $expedienteId)
+            ->where('activo', true)
+            ->get();
+
+        $aprobados = $jurados->where('aprobado', true)->count();
+        $desaprobados = $jurados->whereNotNull('aprobado')->where('aprobado', false)->count();
+
+        if ($aprobados === 3) {
+            $presidente = $jurados->where('rol_jurado', 'presidente')->first();
+            $actorId = $presidente ? $presidente->jurado_id : 0;
+
+            app(ExpedienteService::class)->registrarCambioFase($expedienteId, 7, $actorId);
+
+            DB::table('expediente')
+                ->where('id', $expedienteId)
+                ->update(['estado' => 'aprobado', 'updated_at' => now()]);
+        } 
+        elseif ($desaprobados > 1) {
+            DB::table('expediente')
+                ->where('id', $expedienteId)
+                ->update(['estado' => 'en_subsanacion', 'updated_at' => now()]);
+
+            $expediente = DB::table('expediente')->where('id', $expedienteId)->first();
+            if ($expediente) {
+                \Illuminate\Support\Facades\Log::info("Notificación enviada al estudiante {$expediente->estudiante_id}: Su expediente ha entrado en estado de subsanación.");
+            }
+        } 
+        elseif ($aprobados === 2) {
+            $plazo = DB::table('controlplazo')
+                ->where('expediente_id', $expedienteId)
+                ->where('vencido', true)
+                ->first();
+
+            if ($plazo) {
+                app(PlazoService::class)->verificarArt123d($expedienteId);
+            }
+        }
+    }
 }

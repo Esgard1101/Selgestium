@@ -27,6 +27,8 @@ return [
 
     'expediente.observaciones.view'   => 4,
     'expediente.observaciones.registrar' => 4,
+    'jurado.veredicto'                => 4,
+    'jurado.veredicto.store'          => 4,
 
     'sustentacion.programar.index'    => 5,
     'sustentacion.programar.show'     => 5,

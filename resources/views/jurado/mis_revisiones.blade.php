@@ -106,11 +106,16 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-5 py-4 text-right">
+                                <td class="px-5 py-4 text-right flex items-center justify-end gap-2">
                                     <a href="{{ route('jurado.observaciones.show', $expediente->id) }}" 
-                                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition hover:opacity-90"
-                                       style="background-color: var(--color-primary); color: white;">
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm transition hover:opacity-90"
+                                       style="background-color: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-primary);">
                                         <i class="fas fa-magnifying-glass"></i> Revisar
+                                    </a>
+                                    <a href="{{ route('jurado.veredicto', $expediente->id) }}" 
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm transition hover:opacity-90"
+                                       style="background-color: var(--color-primary); color: white;">
+                                        <i class="fas fa-vote-yea"></i> Veredicto
                                     </a>
                                 </td>
                             </tr>

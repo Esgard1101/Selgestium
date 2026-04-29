@@ -113,6 +113,11 @@ Route::middleware([
     Route::get('/expediente/resolucion/{id}', [JuradoController::class, 'verResolucion'])
         ->name('expediente.resolucion');
 
+    // F-22: Veredicto y Aprobación Consolidada
+    Route::get('/jurado/veredicto/{expedienteId}', [JuradoController::class, 'veredicto'])->name('jurado.veredicto');
+    Route::post('/jurado/veredicto', [JuradoController::class, 'storeVeredicto'])->name('jurado.veredicto.store');
+    Route::post('/jurado/generar-otp', [JuradoController::class, 'generarOtp'])->name('jurado.otp.generar');
+
     // ─── Expediente: Observaciones de jurados ─────────────────────────────
     Route::get('/jurado/observaciones/{expedienteId}', [ObservacionController::class, 'showObservaciones'])
         ->name('jurado.observaciones.show');
