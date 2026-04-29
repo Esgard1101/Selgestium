@@ -50,4 +50,7 @@ return [
 
     // 10 = Control de Plazos
     'plazo.dashboard'                 => 10,
+
+    // 11 = Calendario
+    'sustentacion.calendario'         => 11,
 ];

@@ -110,6 +110,16 @@ class OpcionmenuSeeder extends Seeder
                 'orden'       => 1,
                 'activo'      => true,
             ],
+            // ID 11 — Todos: Calendario de Sustentaciones
+            [
+                'id'          => 11,
+                'ruta_nombre' => 'sustentacion.calendario',
+                'descripcion' => 'Calendario',
+                'icono'       => 'fas fa-calendar-days',
+                'grupo'       => 'Sustentacion',
+                'orden'       => 3,
+                'activo'      => true,
+            ],
         ];
 
         foreach ($items as $item) {

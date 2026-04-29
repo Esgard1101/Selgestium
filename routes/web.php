@@ -131,6 +131,7 @@ Route::middleware([
     Route::get('/sustentacion/cerrar',               [SustentacionController::class, 'indexCerrar'])->name('sustentacion.cerrar.index');
     Route::get('/sustentacion/cerrar/{expedienteId}', [SustentacionController::class, 'showCerrar'])->name('sustentacion.cerrar.show');
     Route::post('/sustentacion/cerrar',                  [SustentacionController::class, 'cerrar'])->name('sustentacion.cerrar.store');
+    Route::get('/sustentacion/calendario',               [SustentacionController::class, 'calendario'])->name('sustentacion.calendario');
 
     // ─── PUR: Radicación de proyectos ─────────────────────────────────────
     Route::get('/pur/radicar',  [PurController::class, 'create'])->name('pur.create');
