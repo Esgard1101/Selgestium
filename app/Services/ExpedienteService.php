@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use App\Services\NotificacionService;
 use App\Traits\DataBaseTrait;
 use App\Traits\LibraryTrait;
 use App\Models\Expediente;
@@ -171,6 +172,55 @@ class ExpedienteService
             } catch (Exception $e) {
                 $this->logError($e);
                 throw $e;
+            }
+        });
+    }
+    /**
+     * Deriva el expediente a una nueva fase y genera la notificación correspondiente.
+     */
+    public function derivar(int $expedienteId, int $nuevaFaseId, int $actorId, string $ip)
+    {
+        DB::transaction(function () use ($expedienteId, $nuevaFaseId, $actorId, $ip) {
+            // Actualizar la fase actual en el expediente
+            DB::table('expediente')->where('id', $expedienteId)->update([
+                'fase_actual' => $nuevaFaseId,
+                'updated_at' => now()
+            ]);
+
+            //Registrar el movimiento en el historial (det_expedientefase)
+            DB::table('det_expedientefase')->insert([
+                'expediente_id' => $expedienteId,
+                'fase_id' => $nuevaFaseId,
+                'actor_id' => $actorId,
+                'ip_actor' => $ip,
+                'fecha_inicio' => now(),
+                'created_at' => now()
+            ]);
+
+            // Notificación Automática 
+            // Si es Fase 1 (Radicación), avisamos a la UI
+            if ($nuevaFaseId == 1) {
+                $rolDestino = match (true) {
+                    $nuevaFaseId <= 3 => 'ui',
+                    $nuevaFaseId == 4 => 'cc',
+                    default           => 'jurado'
+                };
+
+                // Buscamos a las personas que tengan ese rol para notificarles
+                $destinatarios = DB::table('rolpersona')
+                    ->where('rol_id', $rolDestino)
+                    ->pluck('persona_id')
+                    ->toArray();
+
+                // Opcional: agregamos al actor (estudiante) para que también reciba copia
+                $destinatarios[] = $actorId;
+
+                // Encolamos (asegurando que no haya IDs duplicados)
+                $codigoPlantilla = $nuevaFaseId == 1 ? 'EXP_RADICADO' : 'EXP_DERIVADO';
+
+                if (!empty($destinatarios)) {
+                    NotificacionService::encolar($expedienteId, $codigoPlantilla, array_unique($destinatarios));
+                }
             }
         });
     }

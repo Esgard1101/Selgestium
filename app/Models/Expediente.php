@@ -44,19 +44,19 @@ class Expediente extends Model
     public function estudiante()
     {
         return $this->belongsTo(Persona::class, 'estudiante_id')
-                    ->select(['id', 'nombre', 'apellido', 'email']);
+            ->select(['id', 'nombre', 'apellido', 'email']);
     }
 
     public function asesor()
     {
         return $this->belongsTo(Persona::class, 'asesor_id')
-                    ->select(['id', 'nombre', 'apellido', 'email']);
+            ->select(['id', 'nombre', 'apellido', 'email']);
     }
 
     public function sucursal()
     {
         return $this->belongsTo(Sucursal::class)
-                    ->select(['id', 'nombre']);
+            ->select(['id', 'nombre']);
     }
 
     public function documentos()
@@ -67,6 +67,11 @@ class Expediente extends Model
     public function fasesHistorial()
     {
         return $this->hasMany(DetExpedienteFase::class, 'expediente_id');
+    }
+    // Relación hacia det_expedientefase
+    public function historialFases()
+    {
+        return $this->hasMany(DetExpedientefase::class, 'expediente_id')->orderBy('created_at', 'asc');
     }
 
     public function coautores()

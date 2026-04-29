@@ -83,46 +83,72 @@
 
                 <div id="content-timeline" class="tab-content hidden">
                     <h3 class="text-lg font-bold text-gray-800 mb-4">Historial del Expediente</h3>
+
                     <div class="relative border-l border-gray-200 ml-3 mt-4">
 
-                        <div class="mb-8 ml-6">
-                            <span class="absolute flex items-center justify-center w-6 h-6 bg-green-100 rounded-full -left-3 ring-8 ring-white">
-                                <i class="fa-solid fa-check text-green-500 text-xs"></i>
-                            </span>
-                            <h4 class="font-bold text-gray-900">Fase 1: Radicación (PUR)</h4>
-                            <p class="text-sm text-gray-500">Registrado el {{ $expediente->created_at->format('d/m/Y H:i A') }}</p>
-                        </div>
+                        @forelse($expediente->historialFases as $nodo)
+                        <div class="mb-8 ml-6 relative">
 
-                        <div class="mb-8 ml-6">
+                            {{-- Icono dinámico --}}
                             @php
-                            $fase2Status = $expediente->fase_actual > 1 ? 'bg-green-100 text-green-500' : ($expediente->fase_actual == 1 ? 'bg-blue-100 text-blue-500 animate-pulse' : 'bg-gray-100 text-gray-400');
-                            $fase2Icon = $expediente->fase_actual > 1 ? 'fa-check' : ($expediente->fase_actual == 1 ? 'fa-spinner fa-spin' : 'fa-clock');
-                            @endphp
-                            <span class="absolute flex items-center justify-center w-6 h-6 {{ $fase2Status }} rounded-full -left-3 ring-8 ring-white">
-                                <i class="fa-solid {{ $fase2Icon }} text-xs"></i>
-                            </span>
-                            <h4 class="font-bold text-gray-900">Fase 2: Revisión (FAI)</h4>
-                            <p class="text-sm text-gray-500">Validación de requisitos por coordinación.</p>
-                        </div>
+                            $color = match($nodo->estadoexpediente_id ?? null) {
+                            1 => 'bg-green-100 text-green-500', // aprobado
+                            2 => 'bg-red-100 text-red-500', // rechazado
+                            default => 'bg-blue-100 text-blue-500' // pendiente
+                            };
 
-                        <div class="ml-6">
-                            @php
-                            $fase3Status = $expediente->fase_actual > 2 ? 'bg-green-100 text-green-500' : ($expediente->fase_actual == 2 ? 'bg-blue-100 text-blue-500 animate-pulse' : 'bg-gray-100 text-gray-400');
-                            $fase3Icon = $expediente->fase_actual > 2 ? 'fa-check' : ($expediente->fase_actual == 2 ? 'fa-spinner fa-spin' : 'fa-clock');
+                            $icon = match($nodo->estadoexpediente_id ?? null) {
+                            1 => 'fa-check',
+                            2 => 'fa-xmark',
+                            default => 'fa-clock'
+                            };
                             @endphp
-                            <span class="absolute flex items-center justify-center w-6 h-6 {{ $fase3Status }} rounded-full -left-3 ring-8 ring-white">
-                                <i class="fa-solid {{ $fase3Icon }} text-xs"></i>
+
+                            <span class="absolute flex items-center justify-center w-6 h-6 {{ $color }} rounded-full -left-9 ring-8 ring-white">
+                                <i class="fa-solid {{ $icon }} text-xs"></i>
                             </span>
-                            <h4 class="font-bold text-gray-900">Fase 3: Jurados</h4>
-                            <p class="text-sm text-gray-500">Asignación de asesores y resolución.</p>
+
+                            {{-- Fase --}}
+                            <h4 class="font-bold text-gray-900">
+                                Fase {{ $nodo->fase_id }}
+                            </h4>
+
+                            {{-- Fecha --}}
+                            <p class="text-sm text-gray-500">
+                                Movimiento registrado el {{ $nodo->created_at->format('d/m/Y H:i A') }}
+                            </p>
+
+                            {{-- Actor + IP --}}
+                            <div class="mt-1 flex items-center gap-3 text-xs text-gray-400 font-mono">
+                                <span title="Actor ID">
+                                    <i class="fa-solid fa-user-tag"></i> ID: {{ $nodo->actor_id }}
+                                </span>
+
+                                @if($nodo->ip_actor)
+                                <span title="Dirección IP">
+                                    <i class="fa-solid fa-network-wired"></i> IP: {{ $nodo->ip_actor }}
+                                </span>
+                                @endif
+                            </div>
+
+                            {{-- Observación --}}
+                            @if($nodo->observacion)
+                            <p class="text-sm text-gray-700 mt-2 bg-gray-50 border border-gray-100 p-3 rounded-md italic">
+                                "{{ $nodo->observacion }}"
+                            </p>
+                            @endif
+
                         </div>
+                        @empty
+                        <div class="text-gray-500 text-sm ml-6 italic">
+                            No hay historial registrado aún.
+                        </div>
+                        @endforelse
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-
     <script>
         function changeTab(tabId) {
             // Ocultar todos los contenidos
