@@ -43,4 +43,6 @@ return [
     'fai.panel.show'                  => 8,
     'fai.creditos.show'               => 8,
     'fai.creditos.store'              => 8,
+    'fai.etapa2.index'                => 8,
+    'fai.etapa2.store'                => 8,
 ];

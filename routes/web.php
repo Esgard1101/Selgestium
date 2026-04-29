@@ -101,6 +101,10 @@ Route::middleware([
     Route::get('/fai/creditos',  [FaiController::class, 'showVerificacionCreditos'])->name('fai.creditos.show');
     Route::post('/fai/creditos', [FaiController::class, 'storeVerificacionCreditos'])->name('fai.creditos.store');
 
+    // F-14 — FAI Etapa II (Bachiller + Voucher de Sustentación)
+    Route::get('/fai/etapa2', [FaiController::class, 'showFaiEtapa2'])->name('fai.etapa2.index');
+    Route::post('/fai/etapa2', [FaiController::class, 'storeFaiEtapa2'])->name('fai.etapa2.store');
+
     // F-17 — Panel FAI unificado (rol: ui, cc, admin)
     Route::get('/fai/panel',                [FaiController::class, 'panelIndex'])     ->name('fai.panel.index');
     Route::get('/fai/panel/{expedienteId}', [FaiController::class, 'panelExpediente'])->name('fai.panel.show');

@@ -90,6 +90,16 @@ class OpcionmenuSeeder extends Seeder
                 'orden'       => 1,
                 'activo'      => true,
             ],
+            // ID 9 — FAI Etapa II
+            [
+                'id'          => 9,
+                'ruta_nombre' => 'fai.etapa2.index',
+                'descripcion' => 'FAI Etapa II',
+                'icono'       => 'fas fa-graduation-cap',
+                'grupo'       => 'FAI',
+                'orden'       => 2,
+                'activo'      => true,
+            ],
         ];
 
         foreach ($items as $item) {
