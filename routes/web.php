@@ -76,8 +76,10 @@ Route::middleware([
         ->name('expediente.resolucion');
 
     // ─── Expediente: Observaciones de jurados ─────────────────────────────
-    Route::get('/expediente/observaciones',  [ObservacionController::class, 'showRegistrar'])->name('expediente.observaciones.view');
-    Route::post('/expediente/observaciones', [ObservacionController::class, 'registrar'])->name('expediente.observaciones.registrar');
+    Route::get('/jurado/observaciones/{expedienteId}', [ObservacionController::class, 'showObservaciones'])
+        ->name('jurado.observaciones.show');
+    Route::post('/jurado/observaciones', [ObservacionController::class, 'storeObservacion'])
+        ->name('jurado.observaciones.store');
 
     // ─── Sustentación ─────────────────────────────────────────────────────
     Route::get('/sustentacion/programar',              [SustentacionController::class, 'indexProgramar'])->name('sustentacion.programar.index');

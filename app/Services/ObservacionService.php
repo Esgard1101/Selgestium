@@ -2,94 +2,81 @@
 
 namespace App\Services;
 
-use App\Traits\DataBaseTrait;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
 class ObservacionService
 {
-    use DataBaseTrait;
-
     /**
-     * Registrar una observación de un jurado.
-     *
-     * @param array $data ['expediente_id', 'jurado_id', 'ronda', 'descripcion', 'tipo_veredicto']
-     * @throws Exception
+     * Registrar una observación del jurado con bloqueo RGT.
      */
-    public function registrarObservacion(array $data): void
+    public function registrar(int $expedienteId, int $juradoId, ?int $tipoobservacionId, string $descripcion, int $actorId): void
     {
-        $expedienteId = $data['expediente_id'];
+        // 1. Buscar si ya existe observación para esta ronda
+        $existeRondaUno = DB::table('det_expedienteobservacion')
+            ->where('expediente_id', $expedienteId)
+            ->where('jurado_id', $juradoId)
+            ->where('ronda', 1)
+            ->exists();
 
-        $expediente = DB::table('expediente')->where('id', $expedienteId)->first();
-        if ($expediente && $expediente->estado === 'cerrado') {
-            throw new Exception("El expediente está CERRADO y no permite registrar nuevas observaciones.");
+        // 2. Regla RGT: Si ya existe ronda=1, bloquea rondas adicionales
+        if ($existeRondaUno) {
+            throw new Exception("Observaciones adicionales bloqueadas por el RGT");
         }
 
-        $juradoId = $data['jurado_id'];
-        $ronda = $data['ronda'] ?? 1;
-
-        // REGLA CRÍTICA RGT: Bloqueo de nuevas observaciones en ronda > 1
-        if ($ronda > 1) {
-            $ultimaObservacion = DB::table('det_expedienteobservacion')
-                ->where('expediente_id', $expedienteId)
-                ->where('jurado_id', $juradoId)
-                ->where('ronda', 1)
-                ->first();
-
-            if ($ultimaObservacion && $ultimaObservacion->bloqueado) {
-                throw new Exception("Bloqueo RGT: No se permiten nuevas observaciones tras la primera ronda para este jurado.");
-            }
-        }
-
-        DB::transaction(function () use ($data, $expedienteId, $juradoId, $ronda) {
-            // Guardar observación usando DataBaseTrait
-            $this->insertSingleDB('det_expedienteobservacion', 0, [
+        // 3. Registrar Observación
+        DB::transaction(function () use ($expedienteId, $juradoId, $tipoobservacionId, $descripcion, $actorId) {
+            DB::table('det_expedienteobservacion')->insert([
                 'expediente_id' => $expedienteId,
                 'jurado_id' => $juradoId,
-                'ronda' => $ronda,
-                'descripcion' => $data['descripcion'],
-                'tipo_veredicto' => $data['tipo_veredicto'] ?? 'observado',
-                'bloqueado' => ($ronda == 1), // La ronda 1 bloquea futuras rondas
+                'tipoobservacion_id' => $tipoobservacionId,
+                'ronda' => 1,
+                'descripcion' => $descripcion,
+                'bloqueado' => true,
+                'subsanado' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            // Actualizar estado del expediente según aprobaciones
-            $this->actualizarEstadoExpediente($expedienteId, $ronda);
+            // 4. Bitácora legal del expediente
+            DB::table('bit_expediente')->insert([
+                'expediente_id' => $expedienteId,
+                'actor_id' => $actorId,
+                'accion' => "Jurado (Persona ID: $juradoId) registró observación en Ronda 1",
+                'ip' => request()->ip(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         });
     }
 
     /**
-     * Actualiza el estado y fase del expediente según el consenso de los 3 jurados.
+     * Marcar observación como subsanada.
      */
-    protected function actualizarEstadoExpediente(int $expedienteId, int $ronda): void
+    public function marcarSubsanado(int $observacionId, int $actorId): void
     {
-        $expediente = DB::table('expediente')->where('id', $expedienteId)->first();
+        DB::transaction(function () use ($observacionId, $actorId) {
+            $obs = DB::table('det_expedienteobservacion')->where('id', $observacionId)->first();
 
-        // Obtener observaciones de la ronda actual
-        $observaciones = DB::table('det_expedienteobservacion')
-            ->where('expediente_id', $expedienteId)
-            ->where('ronda', $ronda)
-            ->get();
+            if (!$obs) {
+                throw new Exception("Observación no encontrada.");
+            }
 
-        // Necesitamos que los 3 jurados hayan comentado para cambiar estado global
-        if ($observaciones->count() < 3) {
-            return;
-        }
-
-        $aprobados = $observaciones->where('tipo_veredicto', 'aprobado')->count();
-
-        if ($aprobados === 3) {
-            // Aprobación consolidada -> Avanzar a Fase 7 (Aprobacion del Proyecto)
-            DB::table('expediente')->where('id', $expedienteId)->update([
-                'fase_actual' => 7,
-                'estado' => 'aprobado',
+            DB::table('det_expedienteobservacion')->where('id', $observacionId)->update([
+                'subsanado' => true,
+                'fecha_subsanacion' => now(),
                 'updated_at' => now(),
             ]);
-        } else {
-            // Si hay al menos un "observado" entre los 3 votos -> En subsanación
-            DB::table('expediente')->where('id', $expedienteId)->update([
-                'estado' => 'en_subsanacion',
+
+            // Bitácora de subsanación
+            DB::table('bit_expediente')->insert([
+                'expediente_id' => $obs->expediente_id,
+                'actor_id' => $actorId,
+                'accion' => "Observación ID: $observacionId fue marcada como subsanada",
+                'ip' => request()->ip(),
+                'created_at' => now(),
                 'updated_at' => now(),
             ]);
-        }
+        });
     }
 }
