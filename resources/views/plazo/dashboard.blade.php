@@ -1,6 +1,11 @@
 <x-app-layout>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
+    <!-- DataTables support -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
     <style>
         :root {
             --blue-deep: var(--color-primary-dark);
@@ -40,10 +45,11 @@
         .table-card { background: var(--white); border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0, 30, 90, 0.05); }
         .table-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; color: var(--text-dark); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
         
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #F8FAFC; color: #475569; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px; text-align: left; border-bottom: 2px solid var(--color-border); }
-        td { padding: 16px; border-bottom: 1px solid var(--color-border); font-size: 13px; color: var(--text-dark); }
-        tr:hover { background: #F8FAFC; }
+        table.dataTable { width: 100% !important; border-collapse: collapse !important; border: none !important; }
+        table.dataTable thead th { background: #F8FAFC !important; color: #475569 !important; font-size: 12px !important; font-weight: 800 !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; padding: 14px 16px !important; border-bottom: 2px solid var(--color-border) !important; }
+        table.dataTable tbody td { padding: 16px !important; border-bottom: 1px solid var(--color-border) !important; font-size: 13px !important; color: var(--text-dark) !important; }
+        table.dataTable tbody tr:hover { background: #F8FAFC !important; }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: var(--blue-mid) !important; color: white !important; border-radius: 8px !important; border: none !important; }
 
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; display: inline-block; }
         .badge-red { background: #FFE5E5; color: var(--danger); }
@@ -84,7 +90,7 @@
     </div>
 
     <div class="table-card">
-        <div class="table-title"><i data-lucide="clipboard-list" style="color:var(--blue-mid);"></i> desglose de Expedientes en Plazo</div>
+        <div class="table-title"><i data-lucide="clipboard-list" style="color:var(--blue-mid);"></i> Desglose de Expedientes en Plazo</div>
         
         @if($plazos->isEmpty())
             <div class="py-8 text-center text-gray-500" style="color: var(--muted);">
@@ -92,7 +98,7 @@
             </div>
         @else
             <div class="overflow-x-auto">
-                <table>
+                <table id="tabla-plazos" class="display">
                     <thead>
                         <tr>
                             <th>Expediente</th>
@@ -112,12 +118,12 @@
                                 <td>{{ \Carbon\Carbon::parse($plazo->fecha_inicio)->format('d/m/Y H:i') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($plazo->fecha_vencimiento)->format('d/m/Y H:i') }}</td>
                                 <td>
-                                    @if($plazo->vencido)
-                                        <span class="badge badge-red">0 días</span>
+                                    @if($plazo->vencido || $plazo->dias_restantes <= 0)
+                                        <span class="badge badge-red">{{ $plazo->dias_restantes }} días</span>
+                                    @elseif($plazo->dias_restantes <= 3)
+                                        <span class="badge badge-yellow">{{ $plazo->dias_restantes }} días</span>
                                     @else
-                                        <span class="badge {{ $plazo->dias_restantes <= 3 ? 'badge-yellow' : 'badge-green' }}">
-                                            {{ $plazo->dias_restantes }} días
-                                        </span>
+                                        <span class="badge badge-green">{{ $plazo->dias_restantes }} días</span>
                                     @endif
                                 </td>
                                 <td>
@@ -143,6 +149,14 @@
     </div>
 
     <script>
-        lucide.createIcons();
+        $(document).ready(function() {
+            $('#tabla-plazos').DataTable({
+                responsive: true,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                }
+            });
+            lucide.createIcons();
+        });
     </script>
 </x-app-layout>

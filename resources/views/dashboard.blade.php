@@ -32,6 +32,41 @@
         </div>
     </section>
 
+    {{-- F-21: Tarjetas de Control de Plazos --}}
+    @if(isset($vencidosHoy))
+    <div class="grid gap-6 sm:grid-cols-3">
+        <div class="rounded-2xl p-6 shadow-sm flex items-center gap-4" style="background-color: var(--color-surface); border: 1px solid var(--color-border);">
+            <div class="p-3 rounded-xl text-2xl" style="background-color: #FFE5E5; color: var(--color-danger);">
+                <i class="fas fa-calendar-times"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold" style="color: var(--color-text-primary);">{{ $vencidosHoy }}</p>
+                <p class="text-xs" style="color: var(--color-text-secondary);">Vencidos Hoy</p>
+            </div>
+        </div>
+        
+        <div class="rounded-2xl p-6 shadow-sm flex items-center gap-4" style="background-color: var(--color-surface); border: 1px solid var(--color-border);">
+            <div class="p-3 rounded-xl text-2xl" style="background-color: #FFF4E5; color: var(--color-warning);">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold" style="color: var(--color-text-primary);">{{ $porVencer3Dias }}</p>
+                <p class="text-xs" style="color: var(--color-text-secondary);">Por vencer (≤ 3 días)</p>
+            </div>
+        </div>
+
+        <div class="rounded-2xl p-6 shadow-sm flex items-center gap-4" style="background-color: var(--color-surface); border: 1px solid var(--color-border);">
+            <div class="p-3 rounded-xl text-2xl" style="background-color: #E6F9F0; color: var(--color-success);">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold" style="color: var(--color-text-primary);">{{ $art123dHabilitados }}</p>
+                <p class="text-xs" style="color: var(--color-text-secondary);">Art. 123-d Habilitados</p>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Grid: sustentaciones + estado del sistema --}}
     <div class="grid gap-6 lg:grid-cols-3">
 

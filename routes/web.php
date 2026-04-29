@@ -60,7 +60,44 @@ Route::middleware([
 
     Route::get('/dashboard', function () {
         $sustentaciones = app(\App\Services\SustentacionService::class)->obtenerProgramadas();
-        return view('dashboard', compact('sustentaciones'));
+        
+        $plazos = DB::table('controlplazo')->get();
+        $vencidosHoy = 0;
+        $porVencer3Dias = 0;
+        $art123dHabilitados = 0;
+        $ahora = now();
+
+        foreach ($plazos as $plazo) {
+            $fechaVenc = \Carbon\Carbon::parse($plazo->fecha_vencimiento);
+            if ($plazo->vencido || $fechaVenc->isPast()) {
+                if ($fechaVenc->isToday()) {
+                    $vencidosHoy++;
+                }
+            }
+            if (!$plazo->vencido && !$fechaVenc->isPast()) {
+                $dias = 0;
+                $actual = $ahora->copy();
+                while ($actual->lt($fechaVenc)) {
+                    $actual->addDay();
+                    if (!$actual->isWeekend()) {
+                        $dias++;
+                    }
+                }
+                if ($dias <= 3 && $dias > 0) {
+                    $porVencer3Dias++;
+                }
+            }
+            if ($plazo->art123d_habilitado) {
+                $art123dHabilitados++;
+            }
+        }
+
+        return view('dashboard', compact(
+            'sustentaciones',
+            'vencidosHoy',
+            'porVencer3Dias',
+            'art123dHabilitados'
+        ));
     })->name('dashboard');
 
     // ─── Jurado: Asignación y Revisiones (F-12) ───────────────────────────
