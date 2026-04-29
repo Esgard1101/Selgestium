@@ -30,23 +30,23 @@ class OpcionmenuSeeder extends Seeder
                 'orden'       => 1,
                 'activo'      => true,
             ],
-            // ID 3 — UI / Administrativo / Admin: asignar jurados
+            // ID 3 — UI / Administrativo / Admin / CC: asignar jurados
             [
                 'id'          => 3,
-                'ruta_nombre' => 'expediente.asignar-jurados.view',
-                'descripcion' => 'Asignar Jurados',
+                'ruta_nombre' => 'jurado.asignar',
+                'descripcion' => 'Asignar Jurado',
                 'icono'       => 'fas fa-user-check',
-                'grupo'       => 'Expediente',
+                'grupo'       => 'Jurado',
                 'orden'       => 2,
                 'activo'      => true,
             ],
             // ID 4 — Profesor / CC: registrar observaciones
             [
                 'id'          => 4,
-                'ruta_nombre' => 'expediente.observaciones.view',
-                'descripcion' => 'Observaciones',
+                'ruta_nombre' => 'jurado.mis_revisiones',
+                'descripcion' => 'Mis Revisiones',
                 'icono'       => 'fas fa-comments',
-                'grupo'       => 'Expediente',
+                'grupo'       => 'Jurado',
                 'orden'       => 3,
                 'activo'      => true,
             ],

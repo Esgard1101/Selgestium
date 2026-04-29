@@ -26,24 +26,21 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verificar.
             $resultados = \Illuminate\Support\Facades\DB::table('persona')
                 ->select(
                     'id',
-                    'nombres',
-                    'apellido_paterno',
-                    'apellido_materno',
-                    'numero_documento',
-                    'tipo_persona'
+                    'nombre',
+                    'apellido',
+                    'dni'
                 )
                 ->where(function ($query) use ($q) {
-                    $query->whereRaw("CONCAT(nombres, ' ', apellido_paterno, ' ', apellido_materno) ILIKE ?", ["%{$q}%"])
-                        ->orWhere('numero_documento', 'ILIKE', "%{$q}%");
+                    $query->whereRaw("CONCAT(nombre, ' ', apellido) ILIKE ?", ["%{$q}%"])
+                        ->orWhere('dni', 'ILIKE', "%{$q}%");
                 })
                 ->whereNull('deleted_at')
-                ->where('activo', true)
                 ->limit(10)
                 ->get()
                 ->map(fn($p) => [
                     'id'       => $p->id,
-                    'label'    => "{$p->nombres} {$p->apellido_paterno} {$p->apellido_materno}",
-                    'sublabel' => ucfirst($p->tipo_persona) . ' · ' . $p->numero_documento,
+                    'label'    => "{$p->nombre} {$p->apellido}",
+                    'sublabel' => 'DNI · ' . $p->dni,
                 ]);
 
             return response()->json($resultados);
@@ -65,11 +62,16 @@ Route::middleware([
         return view('dashboard', compact('sustentaciones'));
     })->name('dashboard');
 
-    // ─── Expediente: Asignación de jurados (UI) ───────────────────────────
-    Route::get('/expediente/asignar-jurados', [JuradoController::class, 'showAsignar'])
-        ->name('expediente.asignar-jurados.view');
-    Route::post('/expediente/asignar-jurados', [JuradoController::class, 'asignar'])
-        ->name('expediente.asignar-jurados');
+    // ─── Jurado: Asignación y Revisiones (F-12) ───────────────────────────
+    Route::get('/jurado/asignar', [JuradoController::class, 'indexAsignar'])
+        ->name('jurado.asignar');
+    Route::get('/jurado/asignar/{expedienteId}', [JuradoController::class, 'showAsignar'])
+        ->name('jurado.asignar.show');
+    Route::post('/jurado/asignar', [JuradoController::class, 'asignar'])
+        ->name('jurado.asignar.store');
+    Route::get('/jurado/mis-revisiones', [JuradoController::class, 'misRevisiones'])
+        ->name('jurado.mis_revisiones');
+
     Route::get('/expediente/resolucion/{id}', [JuradoController::class, 'verResolucion'])
         ->name('expediente.resolucion');
 
