@@ -174,4 +174,33 @@ class ExpedienteService
             }
         });
     }
+
+    /**
+     * Registra el cambio de fase de un expediente.
+     * Si avanza a fase 6, inicia el plazo de 15 días hábiles.
+     */
+    public function registrarCambioFase(int $expedienteId, int $nuevaFaseId, int $actorId, string $ip = null): void
+    {
+        DB::transaction(function () use ($expedienteId, $nuevaFaseId, $actorId, $ip) {
+            DB::table('expediente')
+                ->where('id', $expedienteId)
+                ->update([
+                    'fase_actual' => $nuevaFaseId,
+                    'updated_at'  => now()
+                ]);
+
+            DB::table('det_expedientefase')->insert([
+                'expediente_id' => $expedienteId,
+                'fase_id'       => $nuevaFaseId,
+                'actor_id'      => $actorId,
+                'comentario'    => 'Avanzado a fase ' . $nuevaFaseId,
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+
+            if ($nuevaFaseId === 6) {
+                app(PlazoService::class)->iniciar($expedienteId, 6);
+            }
+        });
+    }
 }

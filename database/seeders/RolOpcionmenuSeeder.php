@@ -24,10 +24,10 @@ class RolOpcionmenuSeeder extends Seeder
             7  => [1],                 // Asesor Externo
             8  => [1, 4],              // Profesor / Jurado
             9  => [1, 3, 7],           // Administrativo
-            10 => [1, 3, 5, 6, 8, 9],     // Unidad de Investigacion
-            11 => [1, 3, 4, 5, 6, 8, 9],  // Comite Cientifico
+            10 => [1, 3, 5, 6, 8, 9, 10],     // Unidad de Investigacion
+            11 => [1, 3, 4, 5, 6, 8, 9, 10],  // Comite Cientifico
             12 => [1, 5, 6],           // Decanato
-            13 => [1, 2, 3, 4, 5, 6, 7, 8, 9], // Admin (acceso total)
+            13 => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // Admin (acceso total)
         ];
 
         foreach ($mapeo as $rolId => $opciones) {

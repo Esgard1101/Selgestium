@@ -45,4 +45,7 @@ return [
     'fai.creditos.store'              => 8,
     'fai.etapa2.index'                => 8,
     'fai.etapa2.store'                => 8,
+
+    // 10 = Control de Plazos
+    'plazo.dashboard'                 => 10,
 ];

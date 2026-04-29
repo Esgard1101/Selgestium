@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\ObservacionController;
 use App\Http\Controllers\Web\SustentacionController;
 use App\Http\Controllers\Web\BitacoraAccesoController;
 use App\Http\Controllers\Web\FaiController;
+use App\Http\Controllers\Web\PlazoController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -95,6 +96,9 @@ Route::middleware([
 
     // ─── Seguridad: Bitácora de acceso ────────────────────────────────────
     Route::get('/seguridad/bitacora-acceso', [BitacoraAccesoController::class, 'index'])->name('bitacora.acceso.index');
+
+    // ─── Control de Plazos (F-21) ─────────────────────────────────────────
+    Route::get('/plazos', [PlazoController::class, 'dashboard'])->name('plazo.dashboard');
 
     // ─── FAI: Verificaciones administrativas (rol: ui) ────────────────────
     // RF02.1 — Créditos académicos (manual en Sprint 1; API en Sprint 2)

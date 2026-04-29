@@ -100,6 +100,16 @@ class OpcionmenuSeeder extends Seeder
                 'orden'       => 2,
                 'activo'      => true,
             ],
+            // ID 10 — UI / CC: Control de Plazos
+            [
+                'id'          => 10,
+                'ruta_nombre' => 'plazo.dashboard',
+                'descripcion' => 'Control de Plazos',
+                'icono'       => 'fas fa-clock',
+                'grupo'       => 'Plazos',
+                'orden'       => 1,
+                'activo'      => true,
+            ],
         ];
 
         foreach ($items as $item) {
