@@ -5,23 +5,23 @@
     <!-- Custom Mockup CSS -->
     <style>
         :root {
-            --blue-deep: var(--color-primary);
+            --blue-deep: var(--color-primary-dark);
             --blue-mid: var(--color-primary);
-            --blue-bright: var(--color-primary);
-            --yellow: var(--color-accent, #FFD000);
-            --white: var(--color-surface, #FFFFFF);
-            --gray-light: var(--color-neutral-bg, #F4F6FB);
-            --gray-mid: var(--color-text-muted, #B8C4D8);
-            --line: var(--color-border, #E2E8F0);
-            --text-dark: var(--color-text-primary, #0A1628);
-            --muted: var(--color-text-muted, #64748B);
-            --success: var(--color-success, #00C48C);
-            --warning: var(--color-warning, #FF9F43);
-            --danger: var(--color-danger, #FF6B6B);
+            --blue-bright: var(--color-primary-light);
+            --yellow: var(--color-accent);
+            --white: var(--color-surface);
+            --gray-light: var(--color-bg);
+            --gray-mid: var(--color-border);
+            --line: var(--color-border);
+            --text-dark: var(--color-text-primary);
+            --muted: var(--color-text-secondary);
+            --success: var(--color-success);
+            --warning: var(--color-warning);
+            --danger: var(--color-danger);
             --purple: #7C3AED;
         }
         
-        .page-header { background: linear-gradient(135deg,#002B80 0%,var(--blue-deep) 62%); padding: 28px 34px 36px; position: relative; overflow: hidden; border-radius: 16px; margin-bottom: 24px;}
+        .page-header { background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 62%); padding: 28px 34px 36px; position: relative; overflow: hidden; border-radius: 16px; margin-bottom: 24px;}
         .page-header::before { content: 'REV'; position: absolute; right: -12px; top: -18px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 156px; color: rgba(255, 208, 0, 0.055); letter-spacing: -8px; }
         .breadcrumb { font-size: 12px; color: var(--gray-mid); margin-bottom: 6px; }
         .breadcrumb span { color: var(--yellow); }
