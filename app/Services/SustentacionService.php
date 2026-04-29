@@ -102,26 +102,48 @@ class SustentacionService
     }
 
     /**
-     * Registra el acta final y cierra el expediente (Feature 8).
+     * Registra el acta de sustentación y calcula promedio.
      */
-    public function cerrarExpediente(array $data): void
+    public function registrarActa(int $sustentacionId, array $notas, string $resultado, ?string $observaciones, int $actorId): void
     {
-        $expedienteId = $data['expediente_id'];
+        DB::transaction(function () use ($sustentacionId, $notas, $resultado, $observaciones, $actorId) {
+            $sustentacion = DB::table('sustentacion')->where('id', $sustentacionId)->first();
+            if (!$sustentacion) {
+                throw new Exception("La sustentación no existe.");
+            }
 
-        DB::transaction(function () use ($data, $expedienteId) {
-            $this->insertSingleDB('det_expedienteacta', 0, [
-                'expediente_id' => $expedienteId,
-                'numero_acta' => $data['numero_acta'],
-                'fecha_sustentacion' => now(),
-                'resultado' => $data['resultado'],
-                'observaciones' => $data['observaciones'] ?? '',
-            ]);
+            $nota1 = (float) ($notas[0] ?? 0);
+            $nota2 = (float) ($notas[1] ?? 0);
+            $nota3 = (float) ($notas[2] ?? 0);
+            $promedio = round(($nota1 + $nota2 + $nota3) / 3, 2);
 
-            DB::table('expediente')->where('id', $expedienteId)->update([
-                'estado' => 'cerrado',
-                'fase_actual' => 11,
-                'updated_at' => now(),
-            ]);
+            DB::table('actasustentacion')->updateOrInsert(
+                ['sustentacion_id' => $sustentacionId],
+                [
+                    'expediente_id' => $sustentacion->expediente_id,
+                    'nota_jurado1' => $nota1,
+                    'nota_jurado2' => $nota2,
+                    'nota_jurado3' => $nota3,
+                    'nota_promedio' => $promedio,
+                    'resultado' => $resultado,
+                    'observaciones_acta' => $observaciones,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+
+            DB::table('sustentacion')
+                ->where('id', $sustentacionId)
+                ->update([
+                    'nota_final' => $promedio,
+                    'resultado' => $resultado,
+                    'estado' => 'finalizado',
+                    'updated_at' => now()
+                ]);
+
+            if (strtolower($resultado) === 'aprobado') {
+                app(ExpedienteService::class)->cerrar($sustentacion->expediente_id, $actorId);
+            }
         });
     }
 

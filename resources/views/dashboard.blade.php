@@ -106,9 +106,9 @@
                             @foreach($sustentaciones as $sus)
                                 <tr style="border-bottom: 1px solid var(--color-border);">
                                     <td class="py-3 px-3 whitespace-nowrap font-medium"
-                                        style="color: var(--color-text-primary);">{{ $sus->fecha }}</td>
+                                        style="color: var(--color-text-primary);">{{ \Carbon\Carbon::parse($sus->fecha_hora)->format('Y-m-d') }}</td>
                                     <td class="py-3 px-3 whitespace-nowrap"
-                                        style="color: var(--color-text-secondary);">{{ $sus->hora }}</td>
+                                        style="color: var(--color-text-secondary);">{{ \Carbon\Carbon::parse($sus->fecha_hora)->format('H:i') }}</td>
                                     <td class="py-3 px-3" style="color: var(--color-text-primary);">
                                         <p class="font-medium">{{ $sus->numero_radicacion }}</p>
                                         <p class="text-xs" style="color: var(--color-text-muted);">{{ Str::limit($sus->titulo, 60) }}</p>
