@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Web\JuradoController;
 use App\Http\Controllers\Web\PurController;
 use App\Http\Controllers\Web\ObservacionController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Web\SustentacionController;
 use App\Http\Controllers\Web\BitacoraAccesoController;
 use App\Http\Controllers\Web\FaiController;
 use App\Http\Controllers\Web\PlazoController;
+
 
 Route::get('/', function () {
     return redirect()->route('login');
