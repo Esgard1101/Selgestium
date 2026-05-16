@@ -10,53 +10,14 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
 
+    {{-- prettier-ignore --}}
     <style>
         :root {
-
-            /* prettier-ignore */
-            --color-primary: {
-                    {
-                    config('university.primary_color', '#003087')
-                }
-            }
-
-            ;
-
-            /* prettier-ignore */
-            --color-primary-dark: {
-                    {
-                    config('university.primary_dark_color', '#001F5C')
-                }
-            }
-
-            ;
-
-            /* prettier-ignore */
-            --color-primary-light: {
-                    {
-                    config('university.primary_light_color', '#1A4BA8')
-                }
-            }
-
-            ;
-
-            /* prettier-ignore */
-            --color-accent: {
-                    {
-                    config('university.accent_color', '#00BFFF')
-                }
-            }
-
-            ;
-
-            /* prettier-ignore */
-            --color-accent-light: {
-                    {
-                    config('university.accent_light_color', '#E0F7FF')
-                }
-            }
-
-            ;
+            --color-primary: {{ config('university.primary_color', '#003087') }};
+            --color-primary-dark: {{ config('university.primary_dark_color', '#001F5C') }};
+            --color-primary-light: {{ config('university.primary_light_color', '#1A4BA8') }};
+            --color-accent: {{ config('university.accent_color', '#00BFFF') }};
+            --color-accent-light: {{ config('university.accent_light_color', '#E0F7FF') }};
 
             /* Fallbacks de diseño para la estructura Upstream */
             --color-bg: #f3f4f6;
@@ -192,9 +153,9 @@
 
                     {{-- Botón de Portal PUR --}}
                     <nav class="hidden xl:flex items-center text-sm font-medium">
-                        <button onclick="setRun('/pur', '', 'frame', 'Portal PUR', 'loading')" class="text-gray-500 hover:text-gray-800 transition cursor-pointer font-semibold">
+                        <a href="{{ route('pur.index') }}" class="text-gray-500 hover:text-gray-800 transition cursor-pointer font-semibold">
                             {{ __('app.nav_portal_pur') ?? 'Portal PUR' }}
-                        </button>
+                        </a>
                     </nav>
 
                     {{-- Usuario + dropdown --}}
@@ -243,31 +204,6 @@
             </main>
         </div>
     </div>
-
-    <script>
-        function setRun(url, params, targetId, title, loadingClass) {
-            const target = document.getElementById(targetId);
-            if (loadingClass) target.innerHTML = '<div class="text-center p-10"><i class="fa-solid fa-spinner fa-spin fa-2x"></i> Cargando...</div>';
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const titleEl = document.getElementById('page_title');
-                    if (titleEl && data.page_title) titleEl.innerHTML = data.page_title;
-
-                    target.innerHTML = data.content;
-
-                    if (data.content_footer) {
-                        const scriptEl = document.createRange().createContextualFragment(data.content_footer);
-                        target.appendChild(scriptEl);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    target.innerHTML = '<div class="text-red-500 p-4">Error al cargar los datos.</div>';
-                });
-        }
-    </script>
 
     @stack('modals')
     @livewireScripts

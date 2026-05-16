@@ -136,8 +136,12 @@ Route::middleware([
     Route::get('/sustentacion/calendario',               [SustentacionController::class, 'calendario'])->name('sustentacion.calendario');
 
     // ─── PUR: Radicación de proyectos ─────────────────────────────────────
-    Route::get('/pur/radicar',  [PurController::class, 'create'])->name('pur.create');
-    Route::post('/pur/radicar', [PurController::class, 'store'])->name('pur.store');
+    Route::get('/pur',                  [PurController::class, 'index'])->name('pur.index');
+    Route::get('/pur/create',           [PurController::class, 'create'])->name('pur.create');
+    Route::get('/pur/radicar',          [PurController::class, 'create'])->name('pur.radicar');
+    Route::post('/pur/radicar',         [PurController::class, 'store'])->name('pur.store');
+    Route::get('/pur/{id}',             [PurController::class, 'show'])->name('pur.show');
+    Route::get('/pur/{id}/descargar',   [PurController::class, 'descargar'])->name('pur.descargar');
 
     // ─── Seguridad: Bitácora de acceso ────────────────────────────────────
     Route::get('/seguridad/bitacora-acceso', [BitacoraAccesoController::class, 'index'])->name('bitacora.acceso.index');
@@ -158,11 +162,3 @@ Route::middleware([
     Route::get('/fai/panel',                [FaiController::class, 'panelIndex'])->name('fai.panel.index');
     Route::get('/fai/panel/{expedienteId}', [FaiController::class, 'panelExpediente'])->name('fai.panel.show');
 });
-
-Route::post('/pur', [PurController::class, 'store'])->name('pur.store');
-
-Route::get('/pur', [PurController::class, 'index'])->name('pur.index');
-Route::get('/pur/create', [PurController::class, 'create'])->name('pur.create');
-Route::post('/pur/radicar', [PurController::class, 'store'])->name('pur.store');
-Route::get('/pur/{id}', [PurController::class, 'show'])->name('pur.show');
-Route::get('/pur/{id}/descargar', [\App\Http\Controllers\Web\PurController::class, 'descargar'])->name('pur.descargar');

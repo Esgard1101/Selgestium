@@ -23,3 +23,8 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 agents/
+.claude/settings.local.json
+tests/Feature
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
