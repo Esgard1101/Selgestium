@@ -7,7 +7,21 @@
       "Bash(php -l c:/TEST_CODE/SELGESTIUM3.0/selgestiumapp/app/Http/Controllers/Web/FaiController.php)",
       "Bash(php -l c:/TEST_CODE/SELGESTIUM3.0/selgestiumapp/app/Http/Requests/StoreVerificacionCreditosRequest.php)",
       "Bash(php -l app/Services/FaiService.php)",
-      "Bash(php -l app/Http/Controllers/Web/FaiController.php)"
+      "Bash(php -l app/Http/Controllers/Web/FaiController.php)",
+      "Bash(./vendor/bin/phpunit --testdox)",
+      "Bash(echo \"---EXIT $?---\")",
+      "Bash(php -r '$j=json_decode\\(file_get_contents\\(\"php://stdin\"\\),true\\); foreach\\($j as $r\\){ echo $r[\"method\"].' '.\\($r[\"name\"]??\"-\"\\).' '.$r[\"uri\"].\"\\\\n\"; }')",
+      "Bash(php artisan *)",
+      "Bash(echo \"started $!\")",
+      "Bash(curl -s -o /dev/null -w \"GET / => %{http_code}\\\\n\" http://127.0.0.1:8765/)",
+      "Bash(curl -s -o /dev/null -w \"GET /login => %{http_code}\\\\n\" http://127.0.0.1:8765/login)",
+      "Bash(curl -s -o /dev/null -w \"GET /dashboard => %{http_code}\\\\n\" http://127.0.0.1:8765/dashboard)",
+      "Bash(curl -s -o /dev/null -w \"GET /pur => %{http_code}\\\\n\" http://127.0.0.1:8765/pur)",
+      "Bash(curl -s -o /dev/null -w \"GET /fai/panel => %{http_code}\\\\n\" http://127.0.0.1:8765/fai/panel)",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs -r kill)",
+      "Bash(curl -s -o /dev/null -w \"/pur => %{http_code}\\\\n/pur/create => %{http_code}\\\\n/pur/radicar => %{http_code}\\\\n\" http://127.0.0.1:8007/pur http://127.0.0.1:8007/pur/create http://127.0.0.1:8007/pur/radicar)",
+      "Bash(curl -s -b /tmp/c.txt http://127.0.0.1:8007/pur)"
     ]
   }
 }
