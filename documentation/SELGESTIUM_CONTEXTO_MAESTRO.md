@@ -855,5 +855,8 @@ Los métodos del controlador que inyectan colecciones a una vista de listado deb
 
 
 
+### F-17 · Panel FAI unificado (`/fai/panel`)
+`FaiService::verificacionesPendientes(sucursal_id)` devuelve expedientes de la sucursal en fase 2 u 8 con FAIs sin aprobar; `resultadosParaExpediente(expediente_id)` devuelve los últimos resultados de los 6 códigos (RF02.1–RF02.6). Para escalar: agregar la ruta de verificación en el array `$verificarRoutes` de `panel_expediente.blade.php` al implementar cada nuevo FAI (F-11, F-14, F-16), sin tocar `FaiService` ni el controlador.
+
 *SELGESTIUM · Contexto Maestro v1.0.0 · 2026-I*  
 *Este archivo es la fuente de verdad para todos los agentes del proyecto.*
